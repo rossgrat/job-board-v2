@@ -8,21 +8,53 @@ This is a single-user system. Jobs are fetched from a known set of companies onc
 
 ## Data Model
 
+### company
+
+Defines a company to fetch jobs from, including the source type and source-specific configuration.
+
+```
+company:
+  id
+  name                  string (e.g. "Stripe")
+  fetch_type            greenhouse | gem | workday | ...
+  fetch_config          jsonb (fetcher-specific config, varies by fetch_type)
+  favicon_url           string (URL to company favicon, provided at company creation)
+  is_active             boolean (can disable fetching without deleting)
+```
+
+Example `fetch_config` by type:
+
+```json
+// greenhouse
+{ "board_slug": "stripe" }
+
+// workday
+{ "base_url": "https://nvidia.wd5.myworkdayjobs.com", "path": "/en-US/search" }
+
+// gem
+{ "api_key_env": "GEM_API_KEY", "company_id": "abc123" }
+```
+
+The scheduler iterates over active companies. The fetcher factory reads `fetch_type`, deserializes `fetch_config` into the appropriate Go struct, and returns the right fetcher implementation.
+
 ### raw_job
 
-Immutable. Written once at ingestion, never modified. Source of truth for reprocessing. Deduplication happens at fetch time — if a job already exists (unique key: company + source job ID), it is not created again.
+The `raw_data` blob is immutable — written once at ingestion, never modified. Source of truth for reprocessing. `user_status` is the only mutable field. Deduplication happens at fetch time — if a job already exists (unique key: company_id + source_job_id), it is not created again.
 
 ```
 raw_job:
   id
-  company               string
+  company_id            FK → company
+  source_job_id         string (job ID from the source, unique per company)
   url                   string
   raw_data              original posting blob
   discovered_at         timestamp of first ingestion
-  user_status           null | interested | not_interested | tabled | applied
+  user_status           null | applied | tabled | rejected
 ```
 
-`user_status` tracks the user's relationship with the job. Independent of any pipeline run — marking a job "applied" survives prompt reruns. Null means the user hasn't interacted with it yet.
+Unique constraint: `(company_id, source_job_id)` — prevents duplicate ingestion.
+
+`user_status` tracks the user's relationship with the job. Independent of any pipeline run — survives prompt reruns. Null means new/unreviewed.
 
 ### classified_job
 
@@ -32,17 +64,14 @@ Represents one pass of a raw job through the classification pipeline. Multiple c
 classified_job:
   id
   raw_job_id            FK → raw_job
-  prompt_version        identifier for the prompt used in this run
+  prompt_version        content hash of the prompt files used in this run
   status                pending | non_technical | filtered_location | filtered_level | filtered_relevance | dead | accepted
+  is_current            boolean (true for the latest run per raw_job)
   created_at
 
   # Normalization fields (null if run didn't pass triage)
+  # Locations and technologies stored in separate tables (classified_job_location, classified_job_technology)
   title                 normalized role title (e.g. "Senior Infrastructure Engineer")
-  locations[]           list of location objects:
-    country             two-letter ISO 3166-1 code (e.g. "US", "CA", "GB")
-    city                "City, State/Province" format if available, null if not
-    setting             remote | hybrid | onsite
-  technologies[]        lowercase strings (e.g. ["go", "rust", "k8s"])
   salary_min            number or null
   salary_max            number or null
   level                 junior | mid | senior | staff | principal | management | unknown
@@ -58,6 +87,18 @@ classified_job:
 
 `status` is `pending` while the job is in the pipeline. Once it reaches a terminal state — accepted or rejected at some step — the status is set. Jobs that don't pass triage get `non_technical` with all normalization and classification fields null. Jobs that pass normalization but fail hard constraint filtering have normalization fields populated but classification fields null.
 
+`is_current` marks the latest run per raw_job. Only one classified_job per raw_job can have `is_current = true` — enforced by a unique partial index (`CREATE UNIQUE INDEX ON classified_job (raw_job_id) WHERE is_current = true`). When a run completes, the `is_current` flip is done inside a transaction that locks the raw_job row first:
+
+```sql
+BEGIN;
+  SELECT ... FROM raw_job WHERE id = :raw_job_id FOR UPDATE;
+  UPDATE classified_job SET is_current = false WHERE raw_job_id = :raw_job_id AND is_current = true;
+  UPDATE classified_job SET is_current = true, status = :status WHERE id = :this_classified_job_id;
+COMMIT;
+```
+
+The row lock serializes concurrent runs for the same raw_job. The unique index acts as a safety net.
+
 ### outbox_task
 
 Pipeline orchestration. Each task represents one step of work to be done on a classified_job. Workers pick up tasks by `task_name` and `status = waiting`.
@@ -65,14 +106,17 @@ Pipeline orchestration. Each task represents one step of work to be done on a cl
 ```
 outbox_task:
   id
-  classified_job_id     FK → classified_job
+  classified_job_id     FK → classified_job (ON DELETE CASCADE)
   task_name             triage | normalize | hard_filter | classify | liveness_check
   status                waiting | processing | done | failed
+  retry_count           int (default 0)
+  max_retries           int (default 3)
+  not_before            timestamp (null = ready now, set on retry for backoff)
   created_at
   updated_at
 ```
 
-When a task completes, the handler either creates the next outbox task (job advances) or sets a terminal status on the classified_job (job stops). Failed tasks can be retried by resetting status to `waiting`.
+When a task completes, the handler either creates the next outbox task (job advances) or sets a terminal status on the classified_job (job stops). On failure, retry_count is incremented and status is set back to `waiting` with a `not_before` backoff (30s, 2m, 10m). After max_retries, status is set to `failed` for manual inspection.
 
 ### eval_entry
 
@@ -88,25 +132,60 @@ eval_entry:
   created_at            timestamp
 ```
 
-### domain_lock
 
-Used by liveness workers to prevent concurrent requests to the same host.
+### filter
+
+Defines hard constraint filtering rules applied to normalized job data. All active filters are ANDed together. The `in`/`not_in` operators provide OR logic within a single field.
 
 ```
-domain_lock:
-  domain                string (e.g. "boards.greenhouse.io")
-  locked_by             worker ID or null
-  locked_at             timestamp (for stale lock recovery)
+filter:
+  id
+  field                 location_country | location_city | location_setting | level
+  operator              equals | not_equals | contains | in | not_in
+  value                 text (single value for equals/not_equals/contains, JSON array for in/not_in)
+  is_active             boolean
+```
+
+Example filters:
+
+| field | operator | value |
+|---|---|---|
+| location_country | equals | US |
+| location_setting | in | ["remote", "hybrid"] |
+| level | not_in | ["junior", "management"] |
+
+### classified_job_location
+
+Normalized location data extracted by the LLM. Separate table for clean SQL filtering.
+
+```
+classified_job_location:
+  id
+  classified_job_id     FK → classified_job (ON DELETE CASCADE)
+  country               text (ISO 3166-1 two-letter code)
+  city                  text (null if not specified)
+  setting               text (remote | hybrid | onsite)
+```
+
+### classified_job_technology
+
+Technologies extracted by the LLM. Separate table for queryability.
+
+```
+classified_job_technology:
+  id
+  classified_job_id     FK → classified_job (ON DELETE CASCADE)
+  name                  text (lowercase, e.g. "go", "rust", "k8s")
 ```
 
 ### Separation of Concerns
 
-- **`raw_job`** — immutable raw data + the user's relationship with the job (`user_status`).
+- **`raw_job`** — raw data (immutable) + the user's relationship with the job (`user_status`, mutable).
 - **`classified_job`** — one pipeline run. All pipeline state, classification output, and terminal status live here. Multiple runs can exist per raw job (one per prompt version).
 - **`outbox_task`** — pipeline orchestration. Tracks what work needs to be done on a classified_job.
 - **`eval_entry`** — the user's judgment on classification correctness. Linked to raw_job. Used only for eval runs when tuning prompts. Does not affect the UI feed.
 
-If a job is miscategorized, the user doesn't reclassify it — they interact with it via `user_status` (interested, applied, etc.) and optionally flag it via `eval_entry` so the prompt can improve. The feed shows an indicator on jobs that have an eval entry so the user can see which jobs they've already reviewed.
+If a job is miscategorized, the user doesn't reclassify it — they interact with it via `user_status` (applied, tabled, rejected) and optionally flag it via `eval_entry` so the prompt can improve. The feed shows an indicator on jobs that have an eval entry so the user can see which jobs they've already reviewed.
 
 ### Normalization Notes
 
@@ -126,6 +205,8 @@ If a job is miscategorized, the user doesn't reclassify it — they interact wit
 
 A single real-time pipeline processes all jobs — both new hourly fetches and initial company ingestion. Each job flows through as individual outbox tasks.
 
+A scheduler in the worker service ticks on a configurable interval (default: once per hour). On each tick, it sends off a goroutine per company to fetch new jobs. On initial company addition, all existing jobs are fetched and enter the pipeline.
+
 ### Pipeline Flow
 
 ```
@@ -142,9 +223,9 @@ A single real-time pipeline processes all jobs — both new hourly fetches and i
    → Filtered: set classified_job.status = "filtered_location" | "filtered_level", task done
    → Passed: create classify task
 6. Classify handler sends raw description to LLM (Haiku), writes classification fields on classified_job
-   → Category not_relevant: set classified_job.status = "filtered_relevance", task done
-   → Relevant: create liveness_check task
-7. Liveness handler sends HEAD request to job URL
+   → strong_match, good_match, or partial_match: create liveness_check task
+   → weak_match or not_relevant: set classified_job.status = "filtered_relevance", task done
+7. Liveness handler sends GET request (with Range header) to job URL
    → Dead: set classified_job.status = "dead", task done
    → Live: set classified_job.status = "accepted", task done → job appears in UI
 ```
@@ -152,6 +233,21 @@ A single real-time pipeline processes all jobs — both new hourly fetches and i
 Each step either advances the job (creates the next task) or terminates it (sets a terminal status on classified_job). No task is created after a terminal status.
 
 All LLM steps start with Haiku. Any step can be upgraded to Sonnet independently — it's a config change per step, not an architectural change.
+
+### Prompt Storage
+
+Prompts are text files in the repo, one per LLM step:
+
+```
+prompts/
+  triage.txt
+  normalize.txt
+  classify.txt
+```
+
+The worker reads prompt files on startup. The `prompt_version` stored on each `classified_job` is a content hash of the prompt files used in that run. If any prompt changes between deploys, new runs get a new version identifier.
+
+Prompt changes are made via code, committed to git, and deployed. Eval runs are executed via CLI before committing — change the file locally, run the eval, check results, then commit and deploy if satisfied.
 
 ### Core Business Logic
 
@@ -272,17 +368,16 @@ Key benefits of LLM classification:
 
 This separation means:
 - Changing location or level preferences is a free re-filter, not an LLM rerun
-- You can see what you're filtering out ("12 great roles if you were open to relocating")
 - Relevance stays stable across preference changes, making prompt version comparisons cleaner
 
 Discrete buckets are used instead of a numeric score for more consistent LLM output:
 
 | Bucket | Meaning | Feed Behavior |
 |---|---|---|
-| `strong_match` | Core interest area, right tech stack, compelling work. | Default feed |
-| `good_match` | Most criteria met, maybe adjacent tech stack or slightly outside core categories. | Default feed |
-| `partial_match` | Interesting but notable gaps — tangentially related role or outside core interests but worth a look. | "Browse maybes" view |
-| `weak_match` | One interesting signal but mostly not aligned. | Hidden, accessible if searching |
+| `strong_match` | Core interest area, right tech stack, compelling work. | Dashboard |
+| `good_match` | Most criteria met, maybe adjacent tech stack or slightly outside core categories. | Dashboard |
+| `partial_match` | Interesting but notable gaps — tangentially related role or outside core interests but worth a look. | Filter screen |
+| `weak_match` | One interesting signal but mostly not aligned. | Filter screen |
 
 Jobs with category `not_relevant` have no relevance bucket and are terminated with `classified_job.status = filtered_relevance`.
 
@@ -299,89 +394,117 @@ Jobs filtered out at this step are stored with their normalization data intact �
 
 HTTP request to each job's URL to verify it hasn't been taken down or redirected. Filters out ghost postings and stale listings. Runs only on jobs that survived all prior pipeline steps (triage, normalization, filtering, classification) to minimize HTTP requests and avoid rate limiting.
 
-See "Liveness Workers" below for execution details.
+See "Rate Limiting" and "Liveness Check Details" in the Pipeline Execution Model section.
 
 ### UI
 
-**Main feed**: Jobs with the latest `classified_job.status = accepted` per raw_job, sorted by relevance bucket (`strong_match` first, then `good_match`), then by `discovered_at` (newest first within each bucket). Each job shows:
-- Title, company, locations, technologies, level, salary
+Three screens plus a job detail page and a modal. Auth is a single password (see Tech Stack).
+
+#### Job Listing Component
+
+Reused across the dashboard and filter screen. Each listing shows:
+- Title (links to external job posting URL), company name + favicon
+- Location, level, salary (if available), technologies
 - Category and relevance bucket
-- Model's reasoning
+- Discovered date
+- User status badge (applied, tabled, or nothing if new)
 - Eval flag indicator (if an eval entry exists)
-- Two actions:
-  - **Status button**: Set user status (interested, not interested, tabled, applied) → writes to `raw_job.user_status`
-  - **Flag button**: Confirm or correct the classification → writes to `eval_entry`
+- Action button to open the status/eval modal
 
-Jobs with a `user_status` set move to a separate "My Jobs" view.
+#### Dashboard
 
-**Additional views**:
-- **"Browse maybes"**: `partial_match` jobs that passed all filters
-- **"Filtered out"**: Jobs rejected by hard constraints, with their normalization data intact — title, location, level visible but no classification (useful for spotting overly aggressive filters)
-- **"My Jobs"**: Jobs the user has interacted with via `user_status` (interested, applied, tabled, etc.)
+The primary screen. Shows `strong_match` and `good_match` jobs where `classified_job.is_current = true AND classified_job.status = accepted AND raw_job.user_status != 'rejected'`.
 
-**Review screen**: All classified jobs, filterable by relevance bucket, category, and company. Shows the model's reasoning for each classification. Used for spot-checking results and building the eval set.
+Sorted by:
+1. User status: null (new) first, then applied, then tabled
+2. Relevance: `strong_match` before `good_match`
+3. `discovered_at` newest first
 
-**Eval flagging**: On any job, the user can flag the classification — either confirming it's correct or providing what the correct category and relevance should be. This creates an eval entry and does not change the model's classification or where the job appears in the feed.
+New unreviewed jobs float to the top.
+
+#### Filter Screen
+
+All classified jobs across all relevance buckets and user statuses, including `weak_match`, `not_relevant`, and rejected. Includes both `accepted` and `filtered_relevance` statuses. Three filters:
+- **Relevance**: strong_match, good_match, partial_match, weak_match
+- **User status**: new, applied, tabled, rejected
+- **Company**: dropdown of active companies
+
+Same sort order as dashboard. Same job listing component. This is where you browse `partial_match`/`weak_match` jobs, review rejected jobs, and spot-check classifications.
+
+#### Company Screen
+
+List of all companies. Each shows:
+- Company name and favicon
+- Active/inactive toggle (controls whether the scheduler fetches jobs for this company)
+
+#### Job Detail Page
+
+Full dump of all data for a single job. Accessed via a link on the job listing. Shows:
+- All raw_job fields including the full `raw_data` blob (unstructured description, raw JSON, etc.)
+- All classified_job fields from the current run (normalization + classification)
+- LLM reasoning
+- Pipeline status and timestamps
+- Prompt version used
+
+This is a debugging/inspection screen — everything about the job in one place.
+
+#### Status/Eval Modal
+
+Triggered from the action button on any job listing (dashboard or filter screen). Two sections:
+
+**User status**: Set to applied, tabled, or rejected. Can also clear back to null (new).
+
+**Eval flagging**: Confirm the classification is correct, or provide what the correct category and relevance should be. Creates an eval entry linked to the raw_job. Does not change the classified_job or where the job appears in the feed.
 
 ```
 Job: "Storage Engine Engineer" at CockroachDB
 Model says:  category = not_relevant, relevance = null
 User flags:  category = other_interesting, relevance = strong_match
-→ eval_entry created, classified_job unchanged, user can set raw_job.user_status to "interested"
+→ eval_entry created, classified_job unchanged, user can set status to "applied"
 ```
 
-**Prompt editor**: Edit the classification prompt directly. After editing, run the eval set against the new prompt to check for regressions before committing to a full rerun.
+#### Prompt Editing
+
+Not in the UI. Prompts are edited via code changes to the prompt text files in the repo. Eval runs are executed via CLI before committing and deploying prompt changes.
 
 ## Pipeline Execution Model
 
-Postgres acts as the task queue via the outbox pattern. No external message queue infrastructure is needed. Two worker types process tasks.
+Postgres acts as the task queue via the outbox pattern. No external message queue infrastructure is needed. One worker type handles all tasks.
 
-### General Workers
+### Workers
 
-Pick up individual outbox tasks and route to the appropriate handler.
+General-purpose workers pick up individual outbox tasks and route to the appropriate handler.
 
 ```
-General worker:
-  1. Poll outbox_task for tasks with status = "waiting" and task_name != "liveness_check"
-  2. Claim a task (set status = "processing")
-  3. Route to handler based on task_name (triage, normalize, hard_filter, classify)
+Worker:
+  1. Poll outbox_task for tasks with status = "waiting" AND (not_before IS NULL OR not_before < now())
+  2. Claim a task atomically (SELECT FOR UPDATE SKIP LOCKED, set status = "processing")
+  3. Route to handler based on task_name (triage, normalize, hard_filter, classify, liveness_check)
   4. Handler executes, writes results, creates next task or sets terminal status on classified_job
-  5. Set task status = "done"
+  5. Set task status = "done" (or handle failure — increment retry_count, set not_before for backoff)
   6. Repeat
 ```
 
-Multiple general workers can run in parallel. Steps like triage, normalization, filtering, and classification have no rate limit concerns, so concurrency is safe. Each worker makes real-time LLM API calls directly.
+Multiple workers run as goroutines in the worker process. The number of workers is configurable.
 
-### Liveness Workers
+### Rate Limiting
 
-Pick up only `liveness_check` tasks. Multiple liveness workers run concurrently, each claiming a domain exclusively to prevent concurrent requests to the same host.
+Two in-process rate limiters (using `golang.org/x/time/rate`) control external request rates:
 
+**LLM rate limiter**: Shared across all workers. Limits requests to the Anthropic API to stay within tier limits. Workers call `limiter.Wait(ctx)` before each LLM call.
+
+**Per-domain liveness rate limiters**: A map of domain → rate limiter, created on demand. Default: 1 request every 2-3 seconds per domain. When a worker picks up a liveness_check task, it acquires a token from that domain's limiter before making the GET request. If two workers grab liveness tasks for the same domain, the rate limiter serializes the HTTP calls.
+
+```go
+llmLimiter     *rate.Limiter           // single shared limiter for Anthropic API
+domainLimiters sync.Map                // domain string → *rate.Limiter
 ```
-Liveness worker:
-  1. Query outbox_task for liveness_check tasks with status = "waiting"
-  2. Group by domain, find a domain that is not locked
-  3. Claim the domain (atomic lock via domain_lock table)
-  4. Grab all waiting liveness tasks for that domain
-  5. Process sequentially with a polite delay between requests (default: 2-3 seconds)
-  6. For each task: HEAD request to URL, set classified_job.status = "accepted" or "dead", mark task done
-  7. Release the domain lock
-  8. Repeat from 1
-  9. If no domains available, back off and poll less frequently
-```
-
-#### Domain Locking
-
-Lock acquisition is atomic: `UPDATE domain_lock SET locked_by = :me, locked_at = now() WHERE domain = :domain AND locked_by IS NULL`. If another worker holds the lock, the update affects zero rows and the worker moves on to the next available domain.
-
-This scales naturally — with 50 companies and 10 liveness workers, each worker cycles through available domains. If one domain has many jobs, one worker stays on it while others handle the rest.
 
 Note: domain is the URL host, not the company. Multiple companies may share a domain (e.g. `boards.greenhouse.io`) and a single company may have jobs across multiple domains.
 
-#### Rate Limit Management
+### Liveness Check Details
 
-Each liveness worker controls its own pace per domain — default one request every 2-3 seconds. Per-domain overrides can be configured if some hosts are more or less generous.
-
-If a domain is completely unreachable (not rate-limited, just down), a max retry count on the task prevents infinite loops. After N failures, set classified_job.status = "dead" and move on.
+Liveness checks use GET with a `Range: bytes=0-0` header to avoid downloading full pages. This works universally — some sites block HEAD requests but accept GET. The task retry logic handles unreachable domains: after max_retries failures, set classified_job.status = "dead".
 
 ### Restart Recovery
 
@@ -389,19 +512,39 @@ Two mechanisms handle in-flight work when the service restarts:
 
 **Graceful shutdown**: On SIGTERM, stop picking up new tasks and wait for in-flight tasks to complete before exiting. Handles clean restarts (deploys, config changes).
 
-**Stale task recovery**: On startup, find any outbox tasks stuck in `processing` state longer than a timeout (e.g. 5 minutes) and reset them to `waiting`. Handles crashes and OOM kills. Also release any domain locks where `locked_at` exceeds the timeout.
+**Stale task recovery**: On startup, find any outbox tasks stuck in `processing` state longer than a timeout (e.g. 5 minutes) and reset them to `waiting`. Handles crashes and OOM kills.
 
 Both mechanisms are needed — graceful shutdown for the normal case, stale recovery as a fallback for the crash case.
 
-## Prompt Tuning and Reruns
+### Liveness Recheck
 
-The classification prompt (role preferences, scoring criteria) can be edited and jobs reprocessed to evaluate changes. To support this:
+A scheduled task runs twice per day. It queues `liveness_check` outbox tasks for classified_jobs where `is_current = true AND status IN ('accepted', 'dead') AND raw_job.user_status NOT IN ('applied', 'rejected')`.
 
-- **Reruns create new `classified_job` rows** with the new prompt version — old rows are untouched, enabling comparison across versions
-- **Comparison across versions** — diff classified_jobs for the same raw_job to see what changed
-- **User status is preserved** — `user_status` lives on raw_job, unaffected by reruns
-- **Relevance-based filtering on reruns** — only reprocess jobs that were `partial_match` or above on the previous prompt version. Jobs classified `weak_match` or with category `not_relevant` are safe to skip — no reasonable prompt change targeting engineering roles would make them relevant. This cuts rerun cost by ~60%.
-- Rerun creates new `classified_job` rows + `classify` outbox tasks for eligible jobs, which flow through the same workers as new jobs. Triage, normalization, and filtering are skipped — these jobs already passed those steps on their initial run. Normalization data can be copied from the previous run.
+Jobs that were `applied` or `rejected` are skipped — their liveness status doesn't affect the user. Dead jobs that pass the recheck are flipped back to `accepted` and reappear in the feed. Accepted jobs that fail are flipped to `dead` and disappear.
+
+### Cleanup
+
+A scheduled task (daily ticker) in the worker process. Handles two types of housekeeping:
+
+1. **Old classified_job runs**: Delete where `is_current = false AND status != 'pending' AND created_at < now() - 7 days`. The `ON DELETE CASCADE` foreign key on outbox_task automatically removes associated tasks.
+2. **Completed outbox_tasks**: Delete where `status = 'done' AND updated_at < now() - 7 days`. Catches completed tasks on current runs that won't be cascade-deleted. Failed tasks are kept for debugging until manually cleared.
+
+## Reruns
+
+Prompts, filter criteria, or triage rules can be edited and jobs reprocessed. Reruns create new `classified_job` rows — old rows are untouched, enabling comparison across versions. `user_status` lives on raw_job and is unaffected by reruns.
+
+A rerun starts at the step that changed. Steps before the starting step are skipped — their output is either not needed or copied from the previous run.
+
+| Change | Rerun from | Copy from previous run | Eligible jobs |
+|---|---|---|---|
+| Triage prompt | triage | Nothing | All raw jobs |
+| Normalization prompt | normalize | Nothing | Jobs that passed triage on previous run |
+| Filter criteria | hard_filter | Normalization fields | Jobs that were normalized on previous run |
+| Classification prompt | classify | Normalization fields | Jobs that passed filtering on previous run |
+
+For classification reruns, further filtering is applied: only reprocess jobs that were `partial_match` or above on the previous prompt version. Jobs classified `weak_match` or with category `not_relevant` are safe to skip — no reasonable prompt change targeting engineering roles would make them relevant.
+
+Each rerun creates new `classified_job` rows + the appropriate starting outbox task. These flow through the same workers as new jobs. Each classified_job is self-contained — normalization fields are copied into the new row rather than referencing the previous run.
 
 ### Evaluation Set
 
@@ -502,6 +645,64 @@ A batch orchestrator would manage this end-to-end — triggered explicitly for n
 **Cost savings**: A 5,000-job company ingestion would drop from ~$8.20 to ~$4.10. Prompt reruns from ~$0.80 to ~$0.40.
 
 **When to build**: When the cost of new company ingestion or frequent prompt reruns becomes a concern. At current volume and frequency, the simplicity of a single real-time pipeline outweighs the savings.
+
+## Tech Stack
+
+### Language & Runtime
+
+- **Go** — both services
+- **Postgres** — relational database
+
+### Two Deployables
+
+**Worker**: Fetches jobs on a schedule, executes the pipeline via goroutines, polls the outbox for tasks. No HTTP server.
+
+**UI/API**: Serves the web UI and API. Handles user interactions (status changes, eval flagging).
+
+Both connect to the same Postgres instance. Configuration is per-service via Viper (YAML), with some overlap in config variables (database connection, etc.). Secrets (API keys, tokens, passwords) live in environment variables.
+
+### LLM
+
+- **Anthropic API** via `github.com/anthropics/anthropic-sdk-go`
+- Default model: Haiku 4.5 for all LLM steps
+- Any step independently upgradeable to Sonnet 4.6
+
+### Web / UI
+
+- **chi** — HTTP router with middleware support
+- **templ** — type-safe HTML templating, compiles to Go
+- **htmx** — partial page updates via HTML attributes, no JavaScript framework
+- **Plain CSS** — no CSS framework
+
+### Database
+
+- **pgx** — Postgres driver
+- **sqlc** — generates type-safe Go from SQL queries
+- **Atlas** — database migrations
+
+### Auth
+
+Single-password authentication. Middleware checks for a cookie against a hashed password from config. No sessions, no usernames, no user table. On correct password, sets a long-lived cookie. Login page is a single password field.
+
+### Testing
+
+- **testcontainers** — integration tests against real Postgres
+- Standard Go `testing` package
+
+### Infrastructure
+
+- **Docker Compose** — container orchestration (worker + API + Postgres)
+- **Caddy** — reverse proxy, HTTPS termination (shared external network)
+- **GitHub Actions** — CI/CD, builds Docker images on push to main
+- **GHCR** — Docker image registry
+- **SSH + Makefile** — deployment to remote server (same pattern as steam-deck-stock-alerts)
+
+### Deployment
+
+Same approach as steam-deck-stock-alerts:
+1. Push to `main` triggers GitHub Actions
+2. Actions builds and pushes Docker images to GHCR
+3. `make deploy` SCPs docker-compose and config to remote server, pulls images, restarts
 
 ## Approaches Considered and Rejected
 
