@@ -5,16 +5,19 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/rossgrat/job-board-v2/plugin/greenhouse"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
 )
 
 type Fetcher struct {
-	tickerTime time.Duration
+	greenhouseClient *greenhouse.Client
+	tickerTime       time.Duration
 }
 
 func New(options ...FetcherOption) *Fetcher {
 	f := &Fetcher{
-		tickerTime: time.Hour * 1,
+		tickerTime:       time.Hour * 1,
+		greenhouseClient: greenhouse.New(),
 	}
 
 	for _, o := range options {
@@ -29,6 +32,10 @@ func (f *Fetcher) NewFetcherRunner() runner.RunnerFunc {
 		return func() error {
 			ticker := time.NewTicker(f.tickerTime)
 			defer ticker.Stop()
+
+			if err := f.execute(); err != nil {
+				return err
+			}
 
 			for {
 				select {

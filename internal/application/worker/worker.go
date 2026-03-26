@@ -2,7 +2,6 @@ package worker
 
 import (
 	"context"
-	"time"
 
 	"github.com/rossgrat/job-board-v2/internal/fetcher"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
@@ -15,9 +14,7 @@ type Worker struct {
 func New() *Worker {
 
 	// Initialize fetcher
-	f := fetcher.New(
-		fetcher.WithTickerTime(1 * time.Second),
-	)
+	f := fetcher.New()
 
 	// Triage Worker Pool
 	// Normalization Worker Pool

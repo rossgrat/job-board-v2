@@ -8,13 +8,13 @@ import (
 	"time"
 )
 
-type GreenhouseClient struct {
+type Client struct {
 	baseURL    string
 	httpClient *http.Client
 }
 
-func New() *GreenhouseClient {
-	return &GreenhouseClient{
+func New() *Client {
+	return &Client{
 		baseURL: "https://boards-api.greenhouse.io/v1/boards",
 		httpClient: &http.Client{
 			Timeout: 30 * time.Second,
@@ -22,7 +22,7 @@ func New() *GreenhouseClient {
 	}
 }
 
-func (g *GreenhouseClient) GetJobs(ctx context.Context, boardSlug string) ([]GreenhouseJob, error) {
+func (g *Client) GetJobs(ctx context.Context, boardSlug string) ([]GreenhouseJob, error) {
 	url := fmt.Sprintf("%s/%s/jobs?content=true", g.baseURL, boardSlug)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
