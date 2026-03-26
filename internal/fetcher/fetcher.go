@@ -5,13 +5,18 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/rossgrat/job-board-v2/plugin/greenhouse"
+	"github.com/rossgrat/job-board-v2/internal/fetcher/greenhouse"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
 )
+
+type fetcherClient interface {
+	GetJobs()
+}
 
 type Fetcher struct {
 	greenhouseClient *greenhouse.Client
 	tickerTime       time.Duration
+	clientsMap       map[string]fetcherClient
 }
 
 func New(options ...FetcherOption) *Fetcher {

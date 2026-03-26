@@ -9,3 +9,9 @@ func WithTickerTime(duration time.Duration) FetcherOption {
 		f.tickerTime = duration
 	}
 }
+
+func WithClientMap(clientsMap map[string]fetcherClient) FetcherOption {
+	return func(f *Fetcher) {
+		f.clientsMap = clientsMap
+	}
+}

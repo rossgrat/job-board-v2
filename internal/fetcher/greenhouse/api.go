@@ -1,5 +1,13 @@
 package greenhouse
 
+import (
+	"encoding/json"
+	"strconv"
+
+	"github.com/google/uuid"
+	"github.com/rossgrat/job-board-v2/internal/model"
+)
+
 type GreenhouseJobsResponse struct {
 	Jobs []GreenhouseJob `json:"jobs"`
 }
@@ -15,6 +23,16 @@ type GreenhouseJob struct {
 	CompanyName    string                 `json:"company_name"`
 	Departments    []GreenhouseDepartment `json:"departments"`
 	Offices        []GreenhouseOffice     `json:"offices"`
+}
+
+func (gj *GreenhouseJob) ToModel(companyID uuid.UUID) model.RawJob {
+	rawData, _ := json.Marshal(gj)
+	return model.RawJob{
+		CompanyID:   companyID,
+		SourceJobID: strconv.Itoa(gj.ID),
+		URL:         gj.AbsoluteURL,
+		RawData:     rawData,
+	}
 }
 
 type GreenhouseLocation struct {
