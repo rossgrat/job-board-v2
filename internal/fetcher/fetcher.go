@@ -1,7 +1,50 @@
 package fetcher
 
-type Fetcher struct{}
+import (
+	"context"
+	"fmt"
+	"time"
 
-func New() *Fetcher {
-	return &Fetcher{}
+	"github.com/rossgrat/job-board-v2/plugin/runner"
+)
+
+type Fetcher struct {
+	tickerTime time.Duration
+}
+
+func New(options ...FetcherOption) *Fetcher {
+	f := &Fetcher{
+		tickerTime: time.Hour * 1,
+	}
+
+	for _, o := range options {
+		o(f)
+	}
+
+	return f
+}
+
+func (f *Fetcher) NewFetcherRunner() runner.RunnerFunc {
+	return func(ctx context.Context) func() error {
+		return func() error {
+			ticker := time.NewTicker(f.tickerTime)
+			defer ticker.Stop()
+
+			for {
+				select {
+				case <-ticker.C:
+					if err := f.executeFetch(); err != nil {
+						return err
+					}
+				case <-ctx.Done():
+					return nil
+				}
+			}
+		}
+	}
+}
+
+func (f *Fetcher) executeFetch() error {
+	fmt.Println("Executing Fetcher")
+	return nil
 }
