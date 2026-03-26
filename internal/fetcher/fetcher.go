@@ -33,7 +33,7 @@ func (f *Fetcher) NewFetcherRunner() runner.RunnerFunc {
 			for {
 				select {
 				case <-ticker.C:
-					if err := f.executeFetch(); err != nil {
+					if err := f.execute(); err != nil {
 						return err
 					}
 				case <-ctx.Done():
@@ -44,7 +44,8 @@ func (f *Fetcher) NewFetcherRunner() runner.RunnerFunc {
 	}
 }
 
-func (f *Fetcher) executeFetch() error {
+func (f *Fetcher) execute() error {
+
 	fmt.Println("Executing Fetcher")
 	return nil
 }
