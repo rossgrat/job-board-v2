@@ -17,7 +17,7 @@ build:
 run-worker:
 	./.bin/job-board worker
 
-generate:
+gen:
 	sqlc generate
 
 #

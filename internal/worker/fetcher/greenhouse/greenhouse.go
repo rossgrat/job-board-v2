@@ -12,7 +12,7 @@ import (
 )
 
 type GreenhouseCompanyConfig struct {
-	BoardSlug string
+	BoardSlug string `json:"board_slug"`
 }
 
 type Client struct {
