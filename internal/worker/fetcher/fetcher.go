@@ -9,15 +9,23 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rossgrat/job-board-v2/database/gen/db"
 	"github.com/rossgrat/job-board-v2/internal/model"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/greenhouse"
+	"github.com/rossgrat/job-board-v2/internal/worker/pipeline"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
 )
 
 var (
 	ErrEmptyDB               = errors.New("must configure a db")
 	ErrFailedToLoadCompanies = errors.New("failed to load companies")
+	ErrBeginTx               = errors.New("failed to begin transaction")
+	ErrCreateRawJob          = errors.New("failed to create raw job")
+	ErrCreateClassifiedJob   = errors.New("failed to create classified job")
+	ErrCreateOutboxTask      = errors.New("failed to create outbox task")
+	ErrCommitTx              = errors.New("failed to commit transaction")
 )
 
 type fetcherClient interface {
@@ -25,20 +33,20 @@ type fetcherClient interface {
 }
 
 type Fetcher struct {
-	db         *db.Queries
+	pool       *pgxpool.Pool
 	tickerTime time.Duration
 	clientsMap map[JobBoardName]fetcherClient
 }
 
-func New(db *db.Queries, opts ...FetcherOption) (*Fetcher, error) {
+func New(pool *pgxpool.Pool, opts ...FetcherOption) (*Fetcher, error) {
 	const fn = "Fetcher::New"
 
 	f := &Fetcher{
+		pool:       pool,
 		tickerTime: time.Hour * 1,
 		clientsMap: map[JobBoardName]fetcherClient{
 			"greenhouse": greenhouse.New(),
 		},
-		db: db,
 	}
 
 	for _, o := range opts {
@@ -71,12 +79,16 @@ func (f *Fetcher) NewFetcherRunner() runner.RunnerFunc {
 func (f *Fetcher) execute(ctx context.Context) error {
 	const fn = "Fetcher::execute"
 
-	companies, err := f.db.GetActiveCompanies(ctx)
+	// Load all active companies
+	queries := db.New(f.pool)
+	companies, err := queries.GetActiveCompanies(ctx)
 	if err != nil {
 		slog.Error("failed to load companies", slog.String("err", err.Error()))
 		return fmt.Errorf("%s:%w:%w", fn, ErrFailedToLoadCompanies, err)
 	}
 
+	// For each company, load all jobs for that company, save them as raw jobs
+	// and queue up a triage job
 	var wg sync.WaitGroup
 	for _, company := range companies {
 		fetcherClient := f.clientsMap[JobBoardName(company.FetchType)]
@@ -88,17 +100,69 @@ func (f *Fetcher) execute(ctx context.Context) error {
 				return
 			}
 
-			// Save each job that does not already exist, start a triage outbox task
+			slog.Info(fmt.Sprintf("loaded %d jobs for %s", len(jobs), company.Name))
 
-			fmt.Println("loaded", len(jobs), "jobs")
+			// Save each job that does not already exist, start a triage outbox task
+			for _, job := range jobs {
+				if err := f.SaveJob(ctx, job); err != nil {
+					slog.Error("failed to save job",
+						slog.String("err", err.Error()),
+						slog.String("jobID", job.SourceJobID),
+						slog.String("company", company.Name))
+				}
+			}
+
+			slog.Info(fmt.Sprintf("saved %s jobs", company.Name))
 		})
 	}
 
 	wg.Wait()
 
-	// For each company
-	// 	Dispatch Fetcher based on job board name
+	return nil
+}
 
-	fmt.Println("Executing Fetcher")
+func (f *Fetcher) SaveJob(ctx context.Context, rawJob model.RawJob) error {
+	const fn = "Fetcher::SaveJob"
+
+	tx, err := f.pool.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("%s:%w:%w", fn, ErrBeginTx, err)
+	}
+	defer tx.Rollback(ctx)
+
+	qtx := db.New(tx)
+
+	newRawJob, err := qtx.CreateRawJob(ctx, db.CreateRawJobParams{
+		ID:          pgtype.UUID{Bytes: uuid.Must(uuid.NewV7()), Valid: true},
+		CompanyID:   pgtype.UUID{Bytes: rawJob.CompanyID, Valid: true},
+		SourceJobID: rawJob.SourceJobID,
+		Url:         rawJob.URL,
+		RawData:     rawJob.RawData,
+	})
+	if err != nil {
+		return fmt.Errorf("%s:%w:%w", fn, ErrCreateRawJob, err)
+	}
+
+	classifiedJob, err := qtx.CreateClassifiedJob(ctx, db.CreateClassifiedJobParams{
+		ID:       pgtype.UUID{Bytes: uuid.Must(uuid.NewV7()), Valid: true},
+		RawJobID: newRawJob.ID,
+	})
+	if err != nil {
+		return fmt.Errorf("%s:%w:%w", fn, ErrCreateClassifiedJob, err)
+	}
+
+	_, err = qtx.CreateOutboxTask(ctx, db.CreateOutboxTaskParams{
+		ID:              pgtype.UUID{Bytes: uuid.Must(uuid.NewV7()), Valid: true},
+		ClassifiedJobID: classifiedJob.ID,
+		TaskName:        pipeline.Triage,
+	})
+	if err != nil {
+		return fmt.Errorf("%s:%w:%w", fn, ErrCreateOutboxTask, err)
+	}
+
+	if err := tx.Commit(ctx); err != nil {
+		return fmt.Errorf("%s:%w:%w", fn, ErrCommitTx, err)
+	}
+
 	return nil
 }

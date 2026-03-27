@@ -8,6 +8,38 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+type ClassifiedJob struct {
+	ID                          pgtype.UUID
+	RawJobID                    pgtype.UUID
+	ClassificationPromptVersion pgtype.Text
+	Status                      string
+	IsCurrent                   bool
+	CreatedAt                   pgtype.Timestamptz
+	Title                       pgtype.Text
+	SalaryMin                   pgtype.Int4
+	SalaryMax                   pgtype.Int4
+	Level                       pgtype.Text
+	NormalizedAt                pgtype.Timestamptz
+	Category                    pgtype.Text
+	Relevance                   pgtype.Text
+	Reasoning                   pgtype.Text
+	ClassifiedAt                pgtype.Timestamptz
+}
+
+type ClassifiedJobLocation struct {
+	ID              pgtype.UUID
+	ClassifiedJobID pgtype.UUID
+	Country         string
+	City            pgtype.Text
+	Setting         string
+}
+
+type ClassifiedJobTechnology struct {
+	ID              pgtype.UUID
+	ClassifiedJobID pgtype.UUID
+	Name            string
+}
+
 type Company struct {
 	ID          pgtype.UUID
 	Name        string
@@ -16,4 +48,26 @@ type Company struct {
 	FaviconUrl  string
 	IsActive    bool
 	CreatedAt   pgtype.Timestamptz
+}
+
+type OutboxTask struct {
+	ID              pgtype.UUID
+	ClassifiedJobID pgtype.UUID
+	TaskName        string
+	Status          string
+	RetryCount      int32
+	MaxRetries      int32
+	NotBefore       pgtype.Timestamptz
+	CreatedAt       pgtype.Timestamptz
+	UpdatedAt       pgtype.Timestamptz
+}
+
+type RawJob struct {
+	ID           pgtype.UUID
+	CompanyID    pgtype.UUID
+	SourceJobID  string
+	Url          string
+	RawData      []byte
+	DiscoveredAt pgtype.Timestamptz
+	UserStatus   pgtype.Text
 }

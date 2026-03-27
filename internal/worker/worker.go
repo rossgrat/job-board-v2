@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/rossgrat/job-board-v2/database/gen/db"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
 )
@@ -18,12 +18,12 @@ type Worker struct {
 	r *runner.Runner
 }
 
-func New(ctx context.Context, sqlcDB *db.Queries) (*Worker, error) {
+func New(ctx context.Context, pool *pgxpool.Pool) (*Worker, error) {
 	const fn = "Worker::New"
 
 	// Initialize fetcher
 	f, err := fetcher.New(
-		sqlcDB,
+		pool,
 	)
 	if err != nil {
 		return nil, fmt.Errorf("%s:%w:%w", fn, ErrInitFetcher, err)

@@ -22,7 +22,7 @@ CREATE TABLE raw_job (
 CREATE TABLE classified_job (
     id UUID PRIMARY KEY,
     raw_job_id UUID NOT NULL REFERENCES raw_job(id),
-    prompt_version TEXT NOT NULL,
+    classification_prompt_version TEXT,
     status TEXT NOT NULL DEFAULT 'pending',
     is_current BOOLEAN NOT NULL DEFAULT false,
     created_at TIMESTAMPTZ NOT NULL DEFAULT now(),

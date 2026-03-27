@@ -1,5 +1,7 @@
 .PHONY: build run-worker docker-clean docker-up docker-down generate migrate-diff migrate-apply
 
+include .env
+export
 
 #
 # Setup
@@ -39,8 +41,15 @@ docker-down:
 migrate-diff: ENV ?= local
 migrate-diff: NAME ?= $(shell git rev-parse --abbrev-ref HEAD)
 migrate-diff:
-	set -a && . ./.env && atlas migrate diff $(NAME) --env $(ENV)
+	atlas migrate diff $(NAME) --env $(ENV)
 
 migrate-apply: ENV ?= local
 migrate-apply:
-	set -a && . ./.env && atlas migrate apply --env $(ENV)
+	atlas migrate apply --env $(ENV)
+
+
+#
+# Develop
+#
+dev-db-connect:
+	docker exec -it job-board-postgres psql -U $(POSTGRES_USER) -d $(POSTGRES_DB)
