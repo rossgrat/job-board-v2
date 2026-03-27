@@ -81,10 +81,14 @@ func (f *Fetcher) execute(ctx context.Context) error {
 	for _, company := range companies {
 		fetcherClient := f.clientsMap[JobBoardName(company.FetchType)]
 		wg.Go(func() {
+			// Load all jobs for company
 			jobs, err := fetcherClient.GetJobs(ctx, company.ID.Bytes, company.FetchConfig)
 			if err != nil {
 				slog.Error("failed to load jobs for company", slog.String("err", err.Error()))
+				return
 			}
+
+			// Save each job that does not already exist, start a triage outbox task
 
 			fmt.Println("loaded", len(jobs), "jobs")
 		})
