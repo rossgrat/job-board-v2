@@ -44,3 +44,44 @@ func (q *Queries) CreateClassifiedJob(ctx context.Context, arg CreateClassifiedJ
 	)
 	return i, err
 }
+
+const getClassifiedJobByID = `-- name: GetClassifiedJobByID :one
+SELECT id, raw_job_id, classification_prompt_version, status, is_current, created_at, title, salary_min, salary_max, level, normalized_at, category, relevance, reasoning, classified_at FROM classified_job WHERE id = $1
+`
+
+func (q *Queries) GetClassifiedJobByID(ctx context.Context, id pgtype.UUID) (ClassifiedJob, error) {
+	row := q.db.QueryRow(ctx, getClassifiedJobByID, id)
+	var i ClassifiedJob
+	err := row.Scan(
+		&i.ID,
+		&i.RawJobID,
+		&i.ClassificationPromptVersion,
+		&i.Status,
+		&i.IsCurrent,
+		&i.CreatedAt,
+		&i.Title,
+		&i.SalaryMin,
+		&i.SalaryMax,
+		&i.Level,
+		&i.NormalizedAt,
+		&i.Category,
+		&i.Relevance,
+		&i.Reasoning,
+		&i.ClassifiedAt,
+	)
+	return i, err
+}
+
+const updateClassifiedJobStatus = `-- name: UpdateClassifiedJobStatus :exec
+UPDATE classified_job SET status = $2 WHERE id = $1
+`
+
+type UpdateClassifiedJobStatusParams struct {
+	ID     pgtype.UUID
+	Status string
+}
+
+func (q *Queries) UpdateClassifiedJobStatus(ctx context.Context, arg UpdateClassifiedJobStatusParams) error {
+	_, err := q.db.Exec(ctx, updateClassifiedJobStatus, arg.ID, arg.Status)
+	return err
+}

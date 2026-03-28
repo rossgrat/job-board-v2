@@ -14,7 +14,7 @@ import (
 	"github.com/rossgrat/job-board-v2/database/gen/db"
 	"github.com/rossgrat/job-board-v2/internal/model"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/greenhouse"
-	"github.com/rossgrat/job-board-v2/internal/worker/pipeline"
+	"github.com/rossgrat/job-board-v2/internal/worker/constants"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
 )
 
@@ -154,7 +154,7 @@ func (f *Fetcher) SaveJob(ctx context.Context, rawJob model.RawJob) error {
 	_, err = qtx.CreateOutboxTask(ctx, db.CreateOutboxTaskParams{
 		ID:              pgtype.UUID{Bytes: uuid.Must(uuid.NewV7()), Valid: true},
 		ClassifiedJobID: classifiedJob.ID,
-		TaskName:        pipeline.Triage,
+		TaskName:        constants.PipelineTriage,
 	})
 	if err != nil {
 		return fmt.Errorf("%s:%w:%w", fn, ErrCreateOutboxTask, err)
