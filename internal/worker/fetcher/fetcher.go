@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rossgrat/job-board-v2/database/gen/db"
@@ -140,6 +141,9 @@ func (f *Fetcher) SaveJob(ctx context.Context, rawJob model.RawJob) error {
 		RawData:     rawJob.RawData,
 	})
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil // duplicate job, skip
+		}
 		return fmt.Errorf("%s:%w:%w", fn, ErrCreateRawJob, err)
 	}
 

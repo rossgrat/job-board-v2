@@ -67,6 +67,16 @@ func (q *Queries) CreateOutboxTask(ctx context.Context, arg CreateOutboxTaskPara
 	return i, err
 }
 
+const resetProcessingTasks = `-- name: ResetProcessingTasks :exec
+UPDATE outbox_task SET status = 'waiting', updated_at = now()
+WHERE status = 'processing'
+`
+
+func (q *Queries) ResetProcessingTasks(ctx context.Context) error {
+	_, err := q.db.Exec(ctx, resetProcessingTasks)
+	return err
+}
+
 const setOutboxTaskStatus = `-- name: SetOutboxTaskStatus :exec
 UPDATE outbox_task SET status = $2, updated_at = now() WHERE id = $1
 `

@@ -42,7 +42,7 @@ func StartWorker(cmd *cobra.Command, args []string) error {
 
 	slog.Info("connected to postgres", slog.String("host", cfg.Postgres.Host))
 
-	worker, err := worker.New(ctx, dbPool)
+	worker, err := worker.New(ctx, dbPool, cfg)
 	if err != nil {
 		fmt.Println("Failed to init worker")
 		os.Exit(1)

@@ -19,3 +19,7 @@ UPDATE outbox_task SET status = $2, updated_at = now() WHERE id = $1;
 UPDATE outbox_task
 SET status = $2, retry_count = $3, not_before = $4, updated_at = now()
 WHERE id = $1;
+
+-- name: ResetProcessingTasks :exec
+UPDATE outbox_task SET status = 'waiting', updated_at = now()
+WHERE status = 'processing';
