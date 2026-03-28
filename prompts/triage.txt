@@ -9,8 +9,13 @@ where the primary work is building or maintaining technical systems.
 
 Non-technical roles include: sales, marketing, HR, recruiting, finance,
 legal, product management, design, project management, executive
-leadership, customer support, operations, and similar roles where
-the primary work is not engineering.
+leadership, customer support, operations, solutions architects,
+IT support, data/business analysts, market researchers, consultants,
+and similar roles where the primary work is not engineering. Watch out
+for titles that contain "technical" or "AI" but are not engineering —
+for example, Technical Account Manager, Technical Recruiter, Technical
+Program Manager, Technical Operations, and AI/marketing hybrid roles
+are all non-technical.
 
 When ambiguous, err on the side of "true" — it is better to let a
 borderline role through than to reject something potentially relevant.

@@ -35,8 +35,8 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Worker, 
 		return nil, fmt.Errorf("%s:%w:%w", fn, ErrInitFetcher, err)
 	}
 
-	// Shared LLM rate limiter — 1 request per second
-	llmLimiter := rate.NewLimiter(rate.Every(1*time.Second), 1)
+	// Shared LLM rate limiter — 1 request every 2 seconds
+	llmLimiter := rate.NewLimiter(rate.Every(2*time.Second), 1)
 
 	// Initialize triage LLM
 	triageLLM, err := llm.New(cfg.Anthropic.APIKey,

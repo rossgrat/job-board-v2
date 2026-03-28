@@ -2,6 +2,7 @@ package triage
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -15,6 +16,7 @@ import (
 var (
 	ErrLoadClassifiedJob   = errors.New("failed to load classified job")
 	ErrLoadRawJob          = errors.New("failed to load raw job")
+	ErrParseRawData        = errors.New("failed to parse raw data")
 	ErrLLMCall             = errors.New("llm call failed")
 	ErrUpdateClassifiedJob = errors.New("failed to update classified job status")
 )
@@ -50,7 +52,17 @@ func (h *Handler) Handle(ctx context.Context, task db.OutboxTask) (*outbox.TaskR
 		return nil, fmt.Errorf("%s:%w:%w", fn, ErrLoadRawJob, err)
 	}
 
-	result, err := llm.Complete[TriageResponse](ctx, h.llm, string(rawJob.RawData))
+	// Extract only title and content for triage — full raw data is too large
+	var raw struct {
+		Title   string `json:"title"`
+		Content string `json:"content"`
+	}
+	if err := json.Unmarshal(rawJob.RawData, &raw); err != nil {
+		return nil, fmt.Errorf("%s:%w:%w", fn, ErrParseRawData, err)
+	}
+
+	triageInput := fmt.Sprintf("Title: %s\n\nDescription: %s", raw.Title, raw.Content)
+	result, err := llm.Complete[TriageResponse](ctx, h.llm, triageInput)
 	if err != nil {
 		return nil, fmt.Errorf("%s:%w:%w", fn, ErrLLMCall, err)
 	}
