@@ -8,3 +8,6 @@ SELECT * FROM classified_job WHERE id = $1;
 
 -- name: UpdateClassifiedJobStatus :exec
 UPDATE classified_job SET status = $2 WHERE id = $1;
+
+-- name: ListClassifiedJobIDsByStatus :many
+SELECT id FROM classified_job WHERE status = $1;

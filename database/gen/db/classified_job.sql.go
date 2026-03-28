@@ -72,6 +72,30 @@ func (q *Queries) GetClassifiedJobByID(ctx context.Context, id pgtype.UUID) (Cla
 	return i, err
 }
 
+const listClassifiedJobIDsByStatus = `-- name: ListClassifiedJobIDsByStatus :many
+SELECT id FROM classified_job WHERE status = $1
+`
+
+func (q *Queries) ListClassifiedJobIDsByStatus(ctx context.Context, status string) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, listClassifiedJobIDsByStatus, status)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []pgtype.UUID
+	for rows.Next() {
+		var id pgtype.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const updateClassifiedJobStatus = `-- name: UpdateClassifiedJobStatus :exec
 UPDATE classified_job SET status = $2 WHERE id = $1
 `
