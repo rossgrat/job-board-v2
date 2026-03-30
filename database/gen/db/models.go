@@ -68,6 +68,7 @@ type RawJob struct {
 	SourceJobID  string
 	Url          string
 	RawData      []byte
+	CleanData    string
 	DiscoveredAt pgtype.Timestamptz
 	UserStatus   pgtype.Text
 }

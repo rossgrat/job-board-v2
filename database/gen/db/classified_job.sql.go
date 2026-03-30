@@ -45,6 +45,46 @@ func (q *Queries) CreateClassifiedJob(ctx context.Context, arg CreateClassifiedJ
 	return i, err
 }
 
+const createClassifiedJobLocation = `-- name: CreateClassifiedJobLocation :exec
+INSERT INTO classified_job_location (id, classified_job_id, country, city, setting)
+VALUES ($1, $2, $3, $4, $5)
+`
+
+type CreateClassifiedJobLocationParams struct {
+	ID              pgtype.UUID
+	ClassifiedJobID pgtype.UUID
+	Country         string
+	City            pgtype.Text
+	Setting         string
+}
+
+func (q *Queries) CreateClassifiedJobLocation(ctx context.Context, arg CreateClassifiedJobLocationParams) error {
+	_, err := q.db.Exec(ctx, createClassifiedJobLocation,
+		arg.ID,
+		arg.ClassifiedJobID,
+		arg.Country,
+		arg.City,
+		arg.Setting,
+	)
+	return err
+}
+
+const createClassifiedJobTechnology = `-- name: CreateClassifiedJobTechnology :exec
+INSERT INTO classified_job_technology (id, classified_job_id, name)
+VALUES ($1, $2, $3)
+`
+
+type CreateClassifiedJobTechnologyParams struct {
+	ID              pgtype.UUID
+	ClassifiedJobID pgtype.UUID
+	Name            string
+}
+
+func (q *Queries) CreateClassifiedJobTechnology(ctx context.Context, arg CreateClassifiedJobTechnologyParams) error {
+	_, err := q.db.Exec(ctx, createClassifiedJobTechnology, arg.ID, arg.ClassifiedJobID, arg.Name)
+	return err
+}
+
 const getClassifiedJobByID = `-- name: GetClassifiedJobByID :one
 SELECT id, raw_job_id, classification_prompt_version, status, is_current, created_at, title, salary_min, salary_max, level, normalized_at, category, relevance, reasoning, classified_at FROM classified_job WHERE id = $1
 `
@@ -94,6 +134,31 @@ func (q *Queries) ListClassifiedJobIDsByStatus(ctx context.Context, status strin
 		return nil, err
 	}
 	return items, nil
+}
+
+const updateClassifiedJobNormalization = `-- name: UpdateClassifiedJobNormalization :exec
+UPDATE classified_job
+SET title = $2, salary_min = $3, salary_max = $4, level = $5, normalized_at = now()
+WHERE id = $1
+`
+
+type UpdateClassifiedJobNormalizationParams struct {
+	ID        pgtype.UUID
+	Title     pgtype.Text
+	SalaryMin pgtype.Int4
+	SalaryMax pgtype.Int4
+	Level     pgtype.Text
+}
+
+func (q *Queries) UpdateClassifiedJobNormalization(ctx context.Context, arg UpdateClassifiedJobNormalizationParams) error {
+	_, err := q.db.Exec(ctx, updateClassifiedJobNormalization,
+		arg.ID,
+		arg.Title,
+		arg.SalaryMin,
+		arg.SalaryMax,
+		arg.Level,
+	)
+	return err
 }
 
 const updateClassifiedJobStatus = `-- name: UpdateClassifiedJobStatus :exec

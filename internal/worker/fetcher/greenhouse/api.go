@@ -32,6 +32,7 @@ func (gj *GreenhouseJob) ToModel(companyID uuid.UUID) model.RawJob {
 		SourceJobID: strconv.Itoa(gj.ID),
 		URL:         gj.AbsoluteURL,
 		RawData:     rawData,
+		CleanData:   model.CleanContent(rawData),
 	}
 }
 

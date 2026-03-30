@@ -12,10 +12,10 @@ import (
 )
 
 const createRawJob = `-- name: CreateRawJob :one
-INSERT INTO raw_job (id, company_id, source_job_id, url, raw_data)
-VALUES ($1, $2, $3, $4, $5)
+INSERT INTO raw_job (id, company_id, source_job_id, url, raw_data, clean_data)
+VALUES ($1, $2, $3, $4, $5, $6)
 ON CONFLICT (company_id, source_job_id) DO NOTHING
-RETURNING id, company_id, source_job_id, url, raw_data, discovered_at, user_status
+RETURNING id, company_id, source_job_id, url, raw_data, clean_data, discovered_at, user_status
 `
 
 type CreateRawJobParams struct {
@@ -24,6 +24,7 @@ type CreateRawJobParams struct {
 	SourceJobID string
 	Url         string
 	RawData     []byte
+	CleanData   string
 }
 
 func (q *Queries) CreateRawJob(ctx context.Context, arg CreateRawJobParams) (RawJob, error) {
@@ -33,6 +34,7 @@ func (q *Queries) CreateRawJob(ctx context.Context, arg CreateRawJobParams) (Raw
 		arg.SourceJobID,
 		arg.Url,
 		arg.RawData,
+		arg.CleanData,
 	)
 	var i RawJob
 	err := row.Scan(
@@ -41,6 +43,7 @@ func (q *Queries) CreateRawJob(ctx context.Context, arg CreateRawJobParams) (Raw
 		&i.SourceJobID,
 		&i.Url,
 		&i.RawData,
+		&i.CleanData,
 		&i.DiscoveredAt,
 		&i.UserStatus,
 	)
@@ -48,7 +51,7 @@ func (q *Queries) CreateRawJob(ctx context.Context, arg CreateRawJobParams) (Raw
 }
 
 const getRawJobByID = `-- name: GetRawJobByID :one
-SELECT id, company_id, source_job_id, url, raw_data, discovered_at, user_status FROM raw_job WHERE id = $1
+SELECT id, company_id, source_job_id, url, raw_data, clean_data, discovered_at, user_status FROM raw_job WHERE id = $1
 `
 
 func (q *Queries) GetRawJobByID(ctx context.Context, id pgtype.UUID) (RawJob, error) {
@@ -60,10 +63,44 @@ func (q *Queries) GetRawJobByID(ctx context.Context, id pgtype.UUID) (RawJob, er
 		&i.SourceJobID,
 		&i.Url,
 		&i.RawData,
+		&i.CleanData,
 		&i.DiscoveredAt,
 		&i.UserStatus,
 	)
 	return i, err
+}
+
+const getRawJobsWithEmptyCleanData = `-- name: GetRawJobsWithEmptyCleanData :many
+SELECT id, company_id, source_job_id, url, raw_data, clean_data, discovered_at, user_status FROM raw_job WHERE clean_data = ''
+`
+
+func (q *Queries) GetRawJobsWithEmptyCleanData(ctx context.Context) ([]RawJob, error) {
+	rows, err := q.db.Query(ctx, getRawJobsWithEmptyCleanData)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []RawJob
+	for rows.Next() {
+		var i RawJob
+		if err := rows.Scan(
+			&i.ID,
+			&i.CompanyID,
+			&i.SourceJobID,
+			&i.Url,
+			&i.RawData,
+			&i.CleanData,
+			&i.DiscoveredAt,
+			&i.UserStatus,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
 }
 
 const setUserStatus = `-- name: SetUserStatus :exec
@@ -77,5 +114,19 @@ type SetUserStatusParams struct {
 
 func (q *Queries) SetUserStatus(ctx context.Context, arg SetUserStatusParams) error {
 	_, err := q.db.Exec(ctx, setUserStatus, arg.ID, arg.UserStatus)
+	return err
+}
+
+const updateRawJobCleanData = `-- name: UpdateRawJobCleanData :exec
+UPDATE raw_job SET clean_data = $2 WHERE id = $1
+`
+
+type UpdateRawJobCleanDataParams struct {
+	ID        pgtype.UUID
+	CleanData string
+}
+
+func (q *Queries) UpdateRawJobCleanData(ctx context.Context, arg UpdateRawJobCleanDataParams) error {
+	_, err := q.db.Exec(ctx, updateRawJobCleanData, arg.ID, arg.CleanData)
 	return err
 }

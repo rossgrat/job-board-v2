@@ -14,6 +14,7 @@ CREATE TABLE raw_job (
     source_job_id TEXT NOT NULL,
     url TEXT NOT NULL,
     raw_data JSONB NOT NULL,
+    clean_data TEXT NOT NULL,
     discovered_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     user_status TEXT,
     UNIQUE (company_id, source_job_id)

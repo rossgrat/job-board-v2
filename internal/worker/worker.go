@@ -11,6 +11,7 @@ import (
 	"github.com/rossgrat/job-board-v2/internal/llm"
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher"
+	"github.com/rossgrat/job-board-v2/internal/worker/normalize"
 	"github.com/rossgrat/job-board-v2/internal/worker/outbox"
 	"github.com/rossgrat/job-board-v2/internal/worker/triage"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
@@ -18,8 +19,9 @@ import (
 )
 
 var (
-	ErrInitFetcher   = errors.New("failed to init fetcher")
-	ErrInitTriageLLM = errors.New("failed to init triage llm")
+	ErrInitFetcher       = errors.New("failed to init fetcher")
+	ErrInitTriageLLM     = errors.New("failed to init triage llm")
+	ErrInitNormalizeLLM  = errors.New("failed to init normalize llm")
 )
 
 type Worker struct {
@@ -35,20 +37,13 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Worker, 
 		return nil, fmt.Errorf("%s:%w:%w", fn, ErrInitFetcher, err)
 	}
 
-	// Shared LLM rate limiter — 1 request every 2 seconds
-	llmLimiter := rate.NewLimiter(rate.Every(2*time.Second), 1)
+	// Shared LLM rate limiter — 1 request every 1.5 seconds (~20K tokens/min at ~500 tokens/req)
+	llmLimiter := rate.NewLimiter(rate.Every(1500*time.Millisecond), 1)
 
 	// Initialize triage LLM
 	triageLLM, err := llm.New(cfg.Anthropic.APIKey,
 		llm.WithRateLimiter(llmLimiter),
-		llm.WithSchema(map[string]any{
-			"type": "object",
-			"properties": map[string]any{
-				"is_technical": map[string]any{"type": "boolean"},
-			},
-			"required":             []string{"is_technical"},
-			"additionalProperties": false,
-		}),
+		llm.WithSchema(llm.TriageSchema),
 	)
 	if err != nil {
 		return nil, fmt.Errorf("%s:%w:%w", fn, ErrInitTriageLLM, err)
@@ -64,10 +59,31 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Worker, 
 		outbox.WithConcurrency(3),
 	)
 
+	// Initialize normalize LLM
+	normalizeLLM, err := llm.New(cfg.Anthropic.APIKey,
+		llm.WithRateLimiter(llmLimiter),
+		llm.WithSchema(llm.NormalizeSchema),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%w:%w", fn, ErrInitNormalizeLLM, err)
+	}
+
+	if err := normalizeLLM.LoadPrompt("prompts/normalize.txt"); err != nil {
+		return nil, fmt.Errorf("%s:%w:%w", fn, ErrInitNormalizeLLM, err)
+	}
+
+	// Initialize normalize handler + outbox worker
+	normalizeHandler := normalize.New(pool, normalizeLLM)
+	normalizeWorker := outbox.New(pool, constants.PipelineNormalize, normalizeHandler,
+		outbox.WithConcurrency(3),
+	)
+
 	r := runner.New(
 		runner.WithProcess(f.NewFetcherRunner()),
 		runner.WithProcess(triageWorker.NewOutboxRunner()),
+		runner.WithProcess(normalizeWorker.NewOutboxRunner()),
 		runner.WithCloser(triageWorker.NewOutboxCloser()),
+		runner.WithCloser(normalizeWorker.NewOutboxCloser()),
 	)
 
 	return &Worker{r: r}, nil

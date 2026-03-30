@@ -139,6 +139,7 @@ func (f *Fetcher) SaveJob(ctx context.Context, rawJob model.RawJob) error {
 		SourceJobID: rawJob.SourceJobID,
 		Url:         rawJob.URL,
 		RawData:     rawJob.RawData,
+		CleanData:   rawJob.CleanData,
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
