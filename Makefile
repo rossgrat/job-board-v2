@@ -19,8 +19,12 @@ build:
 run-worker:
 	./.bin/job-board worker
 
+run-api:
+	./.bin/job-board api
+
 gen:
 	sqlc generate
+	mise exec -- templ generate
 
 #
 # Docker

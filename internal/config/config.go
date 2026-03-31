@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Postgres  PostgresConfig
 	Anthropic AnthropicConfig
+	Server    ServerConfig
 }
 
 func Load() (*Config, error) {
@@ -26,6 +27,7 @@ func Load() (*Config, error) {
 	cfg := &Config{
 		Postgres:  loadPostgresConfig(),
 		Anthropic: loadAnthropicConfig(),
+		Server:    loadServerConfig(),
 	}
 
 	return cfg, nil

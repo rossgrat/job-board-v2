@@ -2,3 +2,4 @@
 go = "1.26"
 sqlc = "1.30"
 atlas = "1.1"
+"aqua:a-h/templ" = "0.3.1001"

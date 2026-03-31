@@ -1,0 +1,803 @@
+- generic [active] [ref=e1]:
+  - banner [ref=e2]:
+    - navigation [ref=e3]:
+      - link "Job Board" [ref=e4] [cursor=pointer]:
+        - /url: /
+  - main [ref=e5]:
+    - generic [ref=e6]:
+      - heading "Dashboard" [level=1] [ref=e7]
+      - paragraph [ref=e8]: 31 jobs
+      - generic [ref=e9]:
+        - generic [ref=e10]:
+          - generic [ref=e11]:
+            - generic [ref=e12]:
+              - heading "Senior Software Engineer - Route Execution" [level=3] [ref=e13]:
+                - link "Senior Software Engineer - Route Execution" [ref=e14] [cursor=pointer]:
+                  - /url: https://www.samsara.com/company/careers/roles/7569229?gh_jid=7569229
+              - generic [ref=e15]:
+                - generic [ref=e16]: Samsara
+                - generic [ref=e17]: —
+                - generic [ref=e18]: CA (remote)
+                - generic [ref=e19]: US (remote)
+            - generic [ref=e20]:
+              - generic [ref=e21]: senior
+              - generic [ref=e22]: $221k–$260k
+              - generic [ref=e23]: backend_engineer
+              - generic [ref=e24]: strong_match
+            - generic [ref=e25]:
+              - generic [ref=e26]: "#go"
+              - generic [ref=e27]: "#graphql"
+              - generic [ref=e28]: "#react"
+              - generic [ref=e29]: "#react native"
+              - generic [ref=e30]: "#typescript"
+          - generic [ref=e31]:
+            - generic [ref=e32]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e33]:
+          - generic [ref=e34]:
+            - generic [ref=e35]:
+              - heading "Senior Software Engineer - Route Execution" [level=3] [ref=e36]:
+                - link "Senior Software Engineer - Route Execution" [ref=e37] [cursor=pointer]:
+                  - /url: https://www.samsara.com/company/careers/roles/7573118?gh_jid=7573118
+              - generic [ref=e38]:
+                - generic [ref=e39]: Samsara
+                - generic [ref=e40]: —
+                - generic [ref=e41]: CA (remote)
+                - generic [ref=e42]: US (remote)
+            - generic [ref=e43]:
+              - generic [ref=e44]: senior
+              - generic [ref=e45]: $142k–$184k
+              - generic [ref=e46]: backend_engineer
+              - generic [ref=e47]: strong_match
+            - generic [ref=e48]:
+              - generic [ref=e49]: "#golang"
+              - generic [ref=e50]: "#graphql"
+              - generic [ref=e51]: "#react"
+              - generic [ref=e52]: "#react native"
+              - generic [ref=e53]: "#typescript"
+          - generic [ref=e54]:
+            - generic [ref=e55]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - generic [ref=e58]:
+              - heading "Software Engineer, Networking" [level=3] [ref=e59]:
+                - link "Software Engineer, Networking" [ref=e60] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4525230005
+              - generic [ref=e61]:
+                - generic [ref=e62]: Tailscale
+                - generic [ref=e63]: —
+                - generic [ref=e64]: CA (remote)
+                - generic [ref=e65]: US (remote)
+            - generic [ref=e66]:
+              - generic [ref=e67]: mid
+              - generic [ref=e68]: $181k–$226k
+              - generic [ref=e69]: linux_kernel_networking
+              - generic [ref=e70]: strong_match
+            - generic [ref=e71]:
+              - generic [ref=e72]: "#go"
+              - generic [ref=e73]: "#sql"
+          - generic [ref=e74]:
+            - generic [ref=e75]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e76]:
+          - generic [ref=e77]:
+            - generic [ref=e78]:
+              - heading "Software Engineer, Networking" [level=3] [ref=e79]:
+                - link "Software Engineer, Networking" [ref=e80] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4525229005
+              - generic [ref=e81]:
+                - generic [ref=e82]: Tailscale
+                - generic [ref=e83]: —
+                - generic [ref=e84]: CA (remote)
+                - generic [ref=e85]: US (remote)
+            - generic [ref=e86]:
+              - generic [ref=e87]: mid
+              - generic [ref=e88]: $242k–$302k
+              - generic [ref=e89]: linux_kernel_networking
+              - generic [ref=e90]: strong_match
+            - generic [ref=e91]:
+              - generic [ref=e92]: "#go"
+              - generic [ref=e93]: "#sql"
+          - generic [ref=e94]:
+            - generic [ref=e95]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e96]:
+          - generic [ref=e97]:
+            - generic [ref=e98]:
+              - heading "Go Core Client Engineer" [level=3] [ref=e99]:
+                - link "Go Core Client Engineer" [ref=e100] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4670590005
+              - generic [ref=e101]:
+                - generic [ref=e102]: Tailscale
+                - generic [ref=e103]: —
+                - generic [ref=e104]: CA (remote)
+                - generic [ref=e105]: GB (remote)
+                - generic [ref=e106]: US (remote)
+            - generic [ref=e107]:
+              - generic [ref=e108]: senior
+              - generic [ref=e109]: $163k–$226k
+              - generic [ref=e110]: backend_engineer
+              - generic [ref=e111]: strong_match
+            - generic [ref=e112]:
+              - generic [ref=e113]: "#go"
+              - generic [ref=e114]: "#tcp"
+              - generic [ref=e115]: "#tls"
+              - generic [ref=e116]: "#udp"
+              - generic [ref=e117]: "#wireguard"
+          - generic [ref=e118]:
+            - generic [ref=e119]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e120]:
+          - generic [ref=e121]:
+            - generic [ref=e122]:
+              - heading "Go Core Client Engineer" [level=3] [ref=e123]:
+                - link "Go Core Client Engineer" [ref=e124] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4647909005
+              - generic [ref=e125]:
+                - generic [ref=e126]: Tailscale
+                - generic [ref=e127]: —
+                - generic [ref=e128]: CA (remote)
+                - generic [ref=e129]: GB (remote)
+                - generic [ref=e130]: US (remote)
+            - generic [ref=e131]:
+              - generic [ref=e132]: senior
+              - generic [ref=e133]: $163k–$227k
+              - generic [ref=e134]: backend_engineer
+              - generic [ref=e135]: strong_match
+            - generic [ref=e136]:
+              - generic [ref=e137]: "#go"
+              - generic [ref=e138]: "#tls"
+              - generic [ref=e139]: "#wireguard"
+          - generic [ref=e140]:
+            - generic [ref=e141]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e142]:
+          - generic [ref=e143]:
+            - generic [ref=e144]:
+              - heading "Backend Engineer, Control Plane" [level=3] [ref=e145]:
+                - link "Backend Engineer, Control Plane" [ref=e146] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4653722005
+              - generic [ref=e147]:
+                - generic [ref=e148]: Tailscale
+                - generic [ref=e149]: —
+                - generic [ref=e150]: CA (remote)
+                - generic [ref=e151]: US (remote)
+            - generic [ref=e152]:
+              - generic [ref=e153]: mid
+              - generic [ref=e154]: $163k–$226k
+              - generic [ref=e155]: backend_engineer
+              - generic [ref=e156]: strong_match
+            - generic [ref=e157]:
+              - generic [ref=e158]: "#go"
+              - generic [ref=e159]: "#sql"
+          - generic [ref=e160]:
+            - generic [ref=e161]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e162]:
+          - generic [ref=e163]:
+            - generic [ref=e164]:
+              - heading "Backend Engineer, Control Plane" [level=3] [ref=e165]:
+                - link "Backend Engineer, Control Plane" [ref=e166] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4653721005
+              - generic [ref=e167]:
+                - generic [ref=e168]: Tailscale
+                - generic [ref=e169]: —
+                - generic [ref=e170]: CA (remote)
+                - generic [ref=e171]: US (remote)
+            - generic [ref=e172]:
+              - generic [ref=e173]: mid
+              - generic [ref=e174]: $218k–$302k
+              - generic [ref=e175]: backend_engineer
+              - generic [ref=e176]: strong_match
+            - generic [ref=e177]:
+              - generic [ref=e178]: "#go"
+              - generic [ref=e179]: "#sql"
+          - generic [ref=e180]:
+            - generic [ref=e181]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e182]:
+          - generic [ref=e183]:
+            - generic [ref=e184]:
+              - heading "Software Engineer, Secrets Infrastructure" [level=3] [ref=e185]:
+                - link "Software Engineer, Secrets Infrastructure" [ref=e186] [cursor=pointer]:
+                  - /url: https://stripe.com/jobs/search?gh_jid=7396679
+              - generic [ref=e187]:
+                - generic [ref=e188]: Stripe
+                - generic [ref=e189]: —
+                - generic [ref=e190]: New York, NY, US (onsite)
+                - generic [ref=e191]: Seattle, WA, US (onsite)
+                - generic [ref=e192]: US (remote)
+            - generic [ref=e193]:
+              - generic [ref=e194]: senior
+              - generic [ref=e195]: backend_engineer
+              - generic [ref=e196]: strong_match
+            - generic [ref=e197]:
+              - generic [ref=e198]: "#cryptography"
+              - generic [ref=e199]: "#go"
+              - generic [ref=e200]: "#java"
+              - generic [ref=e201]: "#kubernetes"
+              - generic [ref=e202]: "#pki"
+              - generic [ref=e203]: "#python"
+              - generic [ref=e204]: "#ruby"
+              - generic [ref=e205]: "#terraform"
+              - generic [ref=e206]: "#tls"
+          - generic [ref=e207]:
+            - generic [ref=e208]: Mar 27
+            - button "Review" [disabled]
+        - generic [ref=e209]:
+          - generic [ref=e210]:
+            - generic [ref=e211]:
+              - heading "Backend Engineer, Core Technology" [level=3] [ref=e212]:
+                - link "Backend Engineer, Core Technology" [ref=e213] [cursor=pointer]:
+                  - /url: https://stripe.com/jobs/search?gh_jid=6042172
+              - generic [ref=e214]:
+                - generic [ref=e215]: Stripe
+                - generic [ref=e216]: —
+                - generic [ref=e217]: Chicago, IL, US (onsite)
+                - generic [ref=e218]: New York, NY, US (onsite)
+                - generic [ref=e219]: San Francisco, CA, US (onsite)
+                - generic [ref=e220]: Seattle, WA, US (onsite)
+                - generic [ref=e221]: US (remote)
+            - generic [ref=e222]:
+              - generic [ref=e223]: mid
+              - generic [ref=e224]: backend_engineer
+              - generic [ref=e225]: strong_match
+            - generic [ref=e226]:
+              - generic [ref=e227]: "#c"
+              - generic [ref=e228]: "#c++"
+              - generic [ref=e229]: "#go"
+              - generic [ref=e230]: "#java"
+          - generic [ref=e231]:
+            - generic [ref=e232]: Mar 27
+            - button "Review" [disabled]
+        - generic [ref=e233]:
+          - generic [ref=e234]:
+            - generic [ref=e235]:
+              - heading "Backend / API Engineer, Billing" [level=3] [ref=e236]:
+                - link "Backend / API Engineer, Billing" [ref=e237] [cursor=pointer]:
+                  - /url: https://stripe.com/jobs/search?gh_jid=7737241
+              - generic [ref=e238]:
+                - generic [ref=e239]: Stripe
+                - generic [ref=e240]: —
+                - generic [ref=e241]: US (onsite)
+                - generic [ref=e242]: US (remote)
+            - generic [ref=e243]:
+              - generic [ref=e244]: senior
+              - generic [ref=e245]: backend_engineer
+              - generic [ref=e246]: strong_match
+            - generic [ref=e247]:
+              - generic [ref=e248]: "#c"
+              - generic [ref=e249]: "#c++"
+              - generic [ref=e250]: "#go"
+              - generic [ref=e251]: "#java"
+          - generic [ref=e252]:
+            - generic [ref=e253]: Mar 27
+            - button "Review" [disabled]
+        - generic [ref=e254]:
+          - generic [ref=e255]:
+            - generic [ref=e256]:
+              - heading "Sr. Automation Engineer (Infra)" [level=3] [ref=e257]:
+                - link "Sr. Automation Engineer (Infra)" [ref=e258] [cursor=pointer]:
+                  - /url: https://www.samsara.com/company/careers/roles/7610374?gh_jid=7610374
+              - generic [ref=e259]:
+                - generic [ref=e260]: Samsara
+                - generic [ref=e261]: —
+                - generic [ref=e262]: US (remote)
+            - generic [ref=e263]:
+              - generic [ref=e264]: senior
+              - generic [ref=e265]: $163k–$234k
+              - generic [ref=e266]: other_interesting
+              - generic [ref=e267]: good_match
+            - generic [ref=e268]:
+              - generic [ref=e269]: "#ble"
+              - generic [ref=e270]: "#can"
+              - generic [ref=e271]: "#gnss"
+              - generic [ref=e272]: "#linux"
+              - generic [ref=e273]: "#lte"
+              - generic [ref=e274]: "#pandas"
+              - generic [ref=e275]: "#python"
+              - generic [ref=e276]: "#sql"
+              - generic [ref=e277]: "#tcp"
+              - generic [ref=e278]: "#uart"
+              - generic [ref=e279]: "#wifi"
+          - generic [ref=e280]:
+            - generic [ref=e281]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e282]:
+          - generic [ref=e283]:
+            - generic [ref=e284]:
+              - heading "Solutions Integration Enginer III" [level=3] [ref=e285]:
+                - link "Solutions Integration Enginer III" [ref=e286] [cursor=pointer]:
+                  - /url: https://www.samsara.com/company/careers/roles/7487370?gh_jid=7487370
+              - generic [ref=e287]:
+                - generic [ref=e288]: Samsara
+                - generic [ref=e289]: —
+                - generic [ref=e290]: US (remote)
+            - generic [ref=e291]:
+              - generic [ref=e292]: senior
+              - generic [ref=e293]: $87k–$117k
+              - generic [ref=e294]: backend_engineer
+              - generic [ref=e295]: good_match
+            - generic [ref=e296]:
+              - generic [ref=e297]: "#appscript"
+              - generic [ref=e298]: "#aws"
+              - generic [ref=e299]: "#azure"
+              - generic [ref=e300]: "#gcp"
+              - generic [ref=e301]: "#github"
+              - generic [ref=e302]: "#javascript"
+              - generic [ref=e303]: "#llm"
+              - generic [ref=e304]: "#python"
+              - generic [ref=e305]: "#rest api"
+              - generic [ref=e306]: "#webhooks"
+          - generic [ref=e307]:
+            - generic [ref=e308]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e309]:
+          - generic [ref=e310]:
+            - generic [ref=e311]:
+              - heading "Software Engineer II, AI Platform" [level=3] [ref=e312]:
+                - link "Software Engineer II, AI Platform" [ref=e313] [cursor=pointer]:
+                  - /url: https://www.samsara.com/company/careers/roles/7619925?gh_jid=7619925
+              - generic [ref=e314]:
+                - generic [ref=e315]: Samsara
+                - generic [ref=e316]: —
+                - generic [ref=e317]: US (remote)
+            - generic [ref=e318]:
+              - generic [ref=e319]: mid
+              - generic [ref=e320]: $113k–$171k
+              - generic [ref=e321]: backend_engineer
+              - generic [ref=e322]: good_match
+            - generic [ref=e323]:
+              - generic [ref=e324]: "#go"
+              - generic [ref=e325]: "#java"
+              - generic [ref=e326]: "#langchain"
+              - generic [ref=e327]: "#mcp"
+              - generic [ref=e328]: "#openai sdk"
+              - generic [ref=e329]: "#python"
+              - generic [ref=e330]: "#salesforce"
+          - generic [ref=e331]:
+            - generic [ref=e332]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e333]:
+          - generic [ref=e334]:
+            - generic [ref=e335]:
+              - heading "Senior Software Engineer II - Route Planning" [level=3] [ref=e336]:
+                - link "Senior Software Engineer II - Route Planning" [ref=e337] [cursor=pointer]:
+                  - /url: https://www.samsara.com/company/careers/roles/7266575?gh_jid=7266575
+              - generic [ref=e338]:
+                - generic [ref=e339]: Samsara
+                - generic [ref=e340]: —
+                - generic [ref=e341]: CA (remote)
+                - generic [ref=e342]: US (remote)
+            - generic [ref=e343]:
+              - generic [ref=e344]: senior
+              - generic [ref=e345]: $154k–$260k
+              - generic [ref=e346]: backend_engineer
+              - generic [ref=e347]: good_match
+            - generic [ref=e348]:
+              - generic [ref=e349]: "#backend"
+              - generic [ref=e350]: "#iot"
+          - generic [ref=e351]:
+            - generic [ref=e352]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e353]:
+          - generic [ref=e354]:
+            - generic [ref=e355]:
+              - heading "Senior Software Engineer, AI Platform" [level=3] [ref=e356]:
+                - link "Senior Software Engineer, AI Platform" [ref=e357] [cursor=pointer]:
+                  - /url: https://www.samsara.com/company/careers/roles/7266719?gh_jid=7266719
+              - generic [ref=e358]:
+                - generic [ref=e359]: Samsara
+                - generic [ref=e360]: —
+                - generic [ref=e361]: US (remote)
+            - generic [ref=e362]:
+              - generic [ref=e363]: senior
+              - generic [ref=e364]: $130k–$198k
+              - generic [ref=e365]: backend_engineer
+              - generic [ref=e366]: good_match
+            - generic [ref=e367]:
+              - generic [ref=e368]: "#go"
+              - generic [ref=e369]: "#java"
+              - generic [ref=e370]: "#langchain"
+              - generic [ref=e371]: "#mcp"
+              - generic [ref=e372]: "#openai sdk"
+              - generic [ref=e373]: "#python"
+          - generic [ref=e374]:
+            - generic [ref=e375]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e376]:
+          - generic [ref=e377]:
+            - generic [ref=e378]:
+              - heading "Senior Mobile Software Engineer - BLE / Connectivity" [level=3] [ref=e379]:
+                - link "Senior Mobile Software Engineer - BLE / Connectivity" [ref=e380] [cursor=pointer]:
+                  - /url: https://www.samsara.com/company/careers/roles/7266447?gh_jid=7266447
+              - generic [ref=e381]:
+                - generic [ref=e382]: Samsara
+                - generic [ref=e383]: —
+                - generic [ref=e384]: US (remote)
+            - generic [ref=e385]:
+              - generic [ref=e386]: senior
+              - generic [ref=e387]: $154k–$260k
+              - generic [ref=e388]: embedded_firmware
+              - generic [ref=e389]: good_match
+            - generic [ref=e390]:
+              - generic [ref=e391]: "#c"
+              - generic [ref=e392]: "#golang"
+              - generic [ref=e393]: "#graphql"
+              - generic [ref=e394]: "#react native"
+              - generic [ref=e395]: "#redux"
+              - generic [ref=e396]: "#typescript"
+          - generic [ref=e397]:
+            - generic [ref=e398]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e399]:
+          - generic [ref=e400]:
+            - generic [ref=e401]:
+              - heading "Lead Full Stack Developer, Business Applications" [level=3] [ref=e402]:
+                - link "Lead Full Stack Developer, Business Applications" [ref=e403] [cursor=pointer]:
+                  - /url: https://www.samsara.com/company/careers/roles/7266307?gh_jid=7266307
+              - generic [ref=e404]:
+                - generic [ref=e405]: Samsara
+                - generic [ref=e406]: —
+                - generic [ref=e407]: CA (remote)
+                - generic [ref=e408]: US (remote)
+            - generic [ref=e409]:
+              - generic [ref=e410]: senior
+              - generic [ref=e411]: $114k–$154k
+              - generic [ref=e412]: backend_engineer
+              - generic [ref=e413]: good_match
+            - generic [ref=e414]:
+              - generic [ref=e415]: "#api gateway"
+              - generic [ref=e416]: "#aws"
+              - generic [ref=e417]: "#cloudformation"
+              - generic [ref=e418]: "#cloudwatch"
+              - generic [ref=e419]: "#docker"
+              - generic [ref=e420]: "#dynamodb"
+              - generic [ref=e421]: "#ecs"
+              - generic [ref=e422]: "#eks"
+              - generic [ref=e423]: "#go"
+              - generic [ref=e424]: "#java"
+              - generic [ref=e425]: "#lambda"
+              - generic [ref=e426]: "#node.js"
+              - generic [ref=e427]: "#python"
+              - generic [ref=e428]: "#rds"
+              - generic [ref=e429]: "#react"
+              - generic [ref=e430]: "#terraform"
+          - generic [ref=e431]:
+            - generic [ref=e432]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e433]:
+          - generic [ref=e434]:
+            - generic [ref=e435]:
+              - heading "Software Engineer, Product Strategy" [level=3] [ref=e436]:
+                - link "Software Engineer, Product Strategy" [ref=e437] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4631832005
+              - generic [ref=e438]:
+                - generic [ref=e439]: Tailscale
+                - generic [ref=e440]: —
+                - generic [ref=e441]: CA (remote)
+                - generic [ref=e442]: US (remote)
+            - generic [ref=e443]:
+              - generic [ref=e444]: senior
+              - generic [ref=e445]: $163k–$226k
+              - generic [ref=e446]: backend_engineer
+              - generic [ref=e447]: good_match
+            - generic [ref=e448]:
+              - generic [ref=e449]: "#go"
+              - generic [ref=e450]: "#oauth"
+              - generic [ref=e451]: "#oidc"
+              - generic [ref=e452]: "#python"
+              - generic [ref=e453]: "#saml"
+              - generic [ref=e454]: "#scim"
+              - generic [ref=e455]: "#typescript"
+          - generic [ref=e456]:
+            - generic [ref=e457]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e458]:
+          - generic [ref=e459]:
+            - generic [ref=e460]:
+              - heading "Software Engineer, Product Strategy" [level=3] [ref=e461]:
+                - link "Software Engineer, Product Strategy" [ref=e462] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4631831005
+              - generic [ref=e463]:
+                - generic [ref=e464]: Tailscale
+                - generic [ref=e465]: —
+                - generic [ref=e466]: CA (remote)
+                - generic [ref=e467]: US (remote)
+            - generic [ref=e468]:
+              - generic [ref=e469]: mid
+              - generic [ref=e470]: $218k–$302k
+              - generic [ref=e471]: backend_engineer
+              - generic [ref=e472]: good_match
+            - generic [ref=e473]:
+              - generic [ref=e474]: "#api"
+              - generic [ref=e475]: "#go"
+              - generic [ref=e476]: "#oauth"
+              - generic [ref=e477]: "#oidc"
+              - generic [ref=e478]: "#python"
+              - generic [ref=e479]: "#saml"
+              - generic [ref=e480]: "#scim"
+              - generic [ref=e481]: "#typescript"
+          - generic [ref=e482]:
+            - generic [ref=e483]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e484]:
+          - generic [ref=e485]:
+            - generic [ref=e486]:
+              - heading "Software Engineer, Engineering Tooling" [level=3] [ref=e487]:
+                - link "Software Engineer, Engineering Tooling" [ref=e488] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4661797005
+              - generic [ref=e489]:
+                - generic [ref=e490]: Tailscale
+                - generic [ref=e491]: —
+                - generic [ref=e492]: CA (remote)
+                - generic [ref=e493]: GB (remote)
+                - generic [ref=e494]: US (remote)
+            - generic [ref=e495]:
+              - generic [ref=e496]: mid
+              - generic [ref=e497]: $187k–$234k
+              - generic [ref=e498]: backend_engineer
+              - generic [ref=e499]: good_match
+            - generic [ref=e500]:
+              - generic [ref=e501]: "#ci/cd"
+              - generic [ref=e502]: "#go"
+              - generic [ref=e503]: "#sql"
+          - generic [ref=e504]:
+            - generic [ref=e505]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e506]:
+          - generic [ref=e507]:
+            - generic [ref=e508]:
+              - heading "Software Engineer, Engineering Tooling" [level=3] [ref=e509]:
+                - link "Software Engineer, Engineering Tooling" [ref=e510] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4616089005
+              - generic [ref=e511]:
+                - generic [ref=e512]: Tailscale
+                - generic [ref=e513]: —
+                - generic [ref=e514]: CA (remote)
+                - generic [ref=e515]: GB (remote)
+                - generic [ref=e516]: US (remote)
+            - generic [ref=e517]:
+              - generic [ref=e518]: mid
+              - generic [ref=e519]: $242k–$302k
+              - generic [ref=e520]: backend_engineer
+              - generic [ref=e521]: good_match
+            - generic [ref=e522]:
+              - generic [ref=e523]: "#ci/cd"
+              - generic [ref=e524]: "#go"
+              - generic [ref=e525]: "#sql"
+          - generic [ref=e526]:
+            - generic [ref=e527]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e528]:
+          - generic [ref=e529]:
+            - generic [ref=e530]:
+              - heading "Software Engineer, Engineering Tooling" [level=3] [ref=e531]:
+                - link "Software Engineer, Engineering Tooling" [ref=e532] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4616090005
+              - generic [ref=e533]:
+                - generic [ref=e534]: Tailscale
+                - generic [ref=e535]: —
+                - generic [ref=e536]: CA (remote)
+                - generic [ref=e537]: GB (remote)
+                - generic [ref=e538]: US (remote)
+            - generic [ref=e539]:
+              - generic [ref=e540]: mid
+              - generic [ref=e541]: $181k–$226k
+              - generic [ref=e542]: backend_engineer
+              - generic [ref=e543]: good_match
+            - generic [ref=e544]:
+              - generic [ref=e545]: "#ci/cd"
+              - generic [ref=e546]: "#go"
+              - generic [ref=e547]: "#infrastructure as code"
+              - generic [ref=e548]: "#sql"
+          - generic [ref=e549]:
+            - generic [ref=e550]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e551]:
+          - generic [ref=e552]:
+            - generic [ref=e553]:
+              - heading "Security Software Engineer" [level=3] [ref=e554]:
+                - link "Security Software Engineer" [ref=e555] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4648916005
+              - generic [ref=e556]:
+                - generic [ref=e557]: Tailscale
+                - generic [ref=e558]: —
+                - generic [ref=e559]: CA (remote)
+                - generic [ref=e560]: US (remote)
+            - generic [ref=e561]:
+              - generic [ref=e562]: mid
+              - generic [ref=e563]: $163k–$204k
+              - generic [ref=e564]: backend_engineer
+              - generic [ref=e565]: good_match
+            - generic [ref=e566]:
+              - generic [ref=e567]: "#android"
+              - generic [ref=e568]: "#go"
+              - generic [ref=e569]: "#ios"
+              - generic [ref=e570]: "#linux"
+              - generic [ref=e571]: "#macos"
+              - generic [ref=e572]: "#web"
+              - generic [ref=e573]: "#windows"
+          - generic [ref=e574]:
+            - generic [ref=e575]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e576]:
+          - generic [ref=e577]:
+            - generic [ref=e578]:
+              - heading "Security Software Engineer" [level=3] [ref=e579]:
+                - link "Security Software Engineer" [ref=e580] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4648921005
+              - generic [ref=e581]:
+                - generic [ref=e582]: Tailscale
+                - generic [ref=e583]: —
+                - generic [ref=e584]: CA (remote)
+                - generic [ref=e585]: US (remote)
+            - generic [ref=e586]:
+              - generic [ref=e587]: mid
+              - generic [ref=e588]: $168k–$210k
+              - generic [ref=e589]: backend_engineer
+              - generic [ref=e590]: good_match
+            - generic [ref=e591]:
+              - generic [ref=e592]: "#android"
+              - generic [ref=e593]: "#go"
+              - generic [ref=e594]: "#ios"
+              - generic [ref=e595]: "#linux"
+              - generic [ref=e596]: "#macos"
+              - generic [ref=e597]: "#web"
+              - generic [ref=e598]: "#windows"
+          - generic [ref=e599]:
+            - generic [ref=e600]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e601]:
+          - generic [ref=e602]:
+            - generic [ref=e603]:
+              - heading "Security Infrastructure Engineer" [level=3] [ref=e604]:
+                - link "Security Infrastructure Engineer" [ref=e605] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4648933005
+              - generic [ref=e606]:
+                - generic [ref=e607]: Tailscale
+                - generic [ref=e608]: —
+                - generic [ref=e609]: CA (remote)
+                - generic [ref=e610]: US (remote)
+            - generic [ref=e611]:
+              - generic [ref=e612]: senior
+              - generic [ref=e613]: $163k–$204k
+              - generic [ref=e614]: backend_engineer
+              - generic [ref=e615]: good_match
+            - generic [ref=e616]:
+              - generic [ref=e617]: "#ansible"
+              - generic [ref=e618]: "#aws"
+              - generic [ref=e619]: "#go"
+              - generic [ref=e620]: "#kubernetes"
+              - generic [ref=e621]: "#terraform"
+          - generic [ref=e622]:
+            - generic [ref=e623]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e624]:
+          - generic [ref=e625]:
+            - generic [ref=e626]:
+              - heading "Security Infrastructure Engineer" [level=3] [ref=e627]:
+                - link "Security Infrastructure Engineer" [ref=e628] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4648927005
+              - generic [ref=e629]:
+                - generic [ref=e630]: Tailscale
+                - generic [ref=e631]: —
+                - generic [ref=e632]: CA (remote)
+                - generic [ref=e633]: US (remote)
+            - generic [ref=e634]:
+              - generic [ref=e635]: senior
+              - generic [ref=e636]: $218k–$273k
+              - generic [ref=e637]: backend_engineer
+              - generic [ref=e638]: good_match
+            - generic [ref=e639]:
+              - generic [ref=e640]: "#ansible"
+              - generic [ref=e641]: "#aws"
+              - generic [ref=e642]: "#go"
+              - generic [ref=e643]: "#terraform"
+          - generic [ref=e644]:
+            - generic [ref=e645]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e646]:
+          - generic [ref=e647]:
+            - generic [ref=e648]:
+              - heading "Product Growth Engineer" [level=3] [ref=e649]:
+                - link "Product Growth Engineer" [ref=e650] [cursor=pointer]:
+                  - /url: https://job-boards.greenhouse.io/tailscale/jobs/4527064005
+              - generic [ref=e651]:
+                - generic [ref=e652]: Tailscale
+                - generic [ref=e653]: —
+                - generic [ref=e654]: CA (remote)
+                - generic [ref=e655]: US (remote)
+            - generic [ref=e656]:
+              - generic [ref=e657]: mid
+              - generic [ref=e658]: $163k–$204k
+              - generic [ref=e659]: backend_engineer
+              - generic [ref=e660]: good_match
+            - generic [ref=e661]:
+              - generic [ref=e662]: "#go"
+              - generic [ref=e663]: "#react"
+              - generic [ref=e664]: "#typescript"
+          - generic [ref=e665]:
+            - generic [ref=e666]: Mar 30
+            - button "Review" [disabled]
+        - generic [ref=e667]:
+          - generic [ref=e668]:
+            - generic [ref=e669]:
+              - heading "Forward Deployed Engineer, Professional Services" [level=3] [ref=e670]:
+                - link "Forward Deployed Engineer, Professional Services" [ref=e671] [cursor=pointer]:
+                  - /url: https://stripe.com/jobs/search?gh_jid=7671038
+              - generic [ref=e672]:
+                - generic [ref=e673]: Stripe
+                - generic [ref=e674]: —
+                - generic [ref=e675]: US (remote)
+            - generic [ref=e676]:
+              - generic [ref=e677]: senior
+              - generic [ref=e678]: backend_engineer
+              - generic [ref=e679]: good_match
+            - generic [ref=e680]:
+              - generic [ref=e681]: "#api design"
+              - generic [ref=e682]: "#docker"
+              - generic [ref=e683]: "#go"
+              - generic [ref=e684]: "#java"
+              - generic [ref=e685]: "#javascript"
+              - generic [ref=e686]: "#react"
+              - generic [ref=e687]: "#ruby"
+              - generic [ref=e688]: "#typescript"
+          - generic [ref=e689]:
+            - generic [ref=e690]: Mar 27
+            - button "Review" [disabled]
+        - generic [ref=e691]:
+          - generic [ref=e692]:
+            - generic [ref=e693]:
+              - heading "Backend Engineer, Developer Experience & Product Platform" [level=3] [ref=e694]:
+                - link "Backend Engineer, Developer Experience & Product Platform" [ref=e695] [cursor=pointer]:
+                  - /url: https://stripe.com/jobs/search?gh_jid=7292520
+              - generic [ref=e696]:
+                - generic [ref=e697]: Stripe
+                - generic [ref=e698]: —
+                - generic [ref=e699]: Toronto, ON, CA (onsite)
+                - generic [ref=e700]: San Francisco, CA, US (onsite)
+                - generic [ref=e701]: CA (remote)
+                - generic [ref=e702]: US (remote)
+            - generic [ref=e703]:
+              - generic [ref=e704]: mid
+              - generic [ref=e705]: backend_engineer
+              - generic [ref=e706]: good_match
+            - generic [ref=e707]:
+              - generic [ref=e708]: "#aws"
+              - generic [ref=e709]: "#java"
+              - generic [ref=e710]: "#oauth"
+              - generic [ref=e711]: "#ruby"
+              - generic [ref=e712]: "#scim"
+              - generic [ref=e713]: "#sso"
+          - generic [ref=e714]:
+            - generic [ref=e715]: Mar 27
+            - button "Review" [disabled]
+        - generic [ref=e716]:
+          - generic [ref=e717]:
+            - generic [ref=e718]:
+              - heading "Android Engineer, Terminal Developer Productivity" [level=3] [ref=e719]:
+                - link "Android Engineer, Terminal Developer Productivity" [ref=e720] [cursor=pointer]:
+                  - /url: https://stripe.com/jobs/search?gh_jid=7550154
+              - generic [ref=e721]:
+                - generic [ref=e722]: Stripe
+                - generic [ref=e723]: —
+                - generic [ref=e724]: US (onsite)
+                - generic [ref=e725]: US (remote)
+            - generic [ref=e726]:
+              - generic [ref=e727]: senior
+              - generic [ref=e728]: other_interesting
+              - generic [ref=e729]: good_match
+            - generic [ref=e730]:
+              - generic [ref=e731]: "#android"
+              - generic [ref=e732]: "#github actions"
+              - generic [ref=e733]: "#gitlab ci"
+              - generic [ref=e734]: "#go"
+              - generic [ref=e735]: "#gradle"
+              - generic [ref=e736]: "#java"
+              - generic [ref=e737]: "#jenkins"
+              - generic [ref=e738]: "#kotlin"
+          - generic [ref=e739]:
+            - generic [ref=e740]: Mar 27
+            - button "Review" [disabled]

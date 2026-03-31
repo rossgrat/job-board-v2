@@ -1,0 +1,60 @@
+package templates
+
+import "fmt"
+
+templ JobListing(job DashboardJob) {
+	<div class={ "job-card", templ.KV("job-card--new", job.UserStatus == "") }>
+		<div class="job-card__left">
+			<h3 class="job-card__title">
+				<a href={ templ.SafeURL(job.URL) } target="_blank" rel="noopener">{ job.Title }</a>
+			</h3>
+			<div class="job-card__meta">
+				if job.Level != "" {
+					<span>{ job.Level }</span>
+				}
+				if job.HasSalary {
+					<span>{ fmt.Sprintf("$%dk–$%dk", job.SalaryMin/1000, job.SalaryMax/1000) }</span>
+				}
+				if job.Category != "" {
+					<span>{ job.Category }</span>
+				}
+				if job.Relevance != "" {
+					<span class={ "badge", "badge--" + job.Relevance }>{ job.Relevance }</span>
+				}
+				if job.UserStatus != "" {
+					<span class={ "badge", "badge--" + job.UserStatus }>{ job.UserStatus }</span>
+				}
+			</div>
+			if len(job.Technologies) > 0 {
+				<div class="job-card__tech">
+					for _, tech := range job.Technologies {
+						<span class="tag tag--tech">{ tech }</span>
+					}
+				</div>
+			}
+		</div>
+		<div class="job-card__right">
+			<div class="job-card__company-row">
+				if job.CompanyFavicon != "" {
+					<img class="job-card__favicon" src={ job.CompanyFavicon } alt="" width="12" height="12"/>
+				}
+				<span class="job-card__company">{ job.CompanyName }</span>
+			</div>
+			if len(job.Locations) > 0 {
+				<div class="job-card__locations">
+					for _, loc := range job.Locations {
+						<span class="tag">
+							if loc.City != "" {
+								{ loc.City }, { loc.Country } ({ loc.Setting })
+							} else {
+								{ loc.Country } ({ loc.Setting })
+							}
+						</span>
+					}
+				</div>
+			}
+			<span class="job-card__date">{ job.DiscoveredAt }</span>
+			<button class="btn" disabled>Review</button>
+		</div>
+	</div>
+}
