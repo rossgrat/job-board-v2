@@ -23,6 +23,8 @@ templ JobListing(job DashboardJob) {
 				}
 				if job.UserStatus != "" {
 					<span class={ "badge", "badge--" + job.UserStatus }>{ job.UserStatus }</span>
+				} else {
+					<span class="badge badge--new">new</span>
 				}
 			</div>
 			if len(job.Technologies) > 0 {
@@ -56,7 +58,12 @@ templ JobListing(job DashboardJob) {
 			<span class="job-card__date">{ job.DiscoveredAt }</span>
 			<div class="job-card__buttons">
 				<a href={ templ.SafeURL("/jobs/" + job.ID) } class="btn">Detail</a>
-				<button class="btn" disabled>Review</button>
+				<button
+					class="btn"
+					hx-get={ "/jobs/" + job.ID + "/review" }
+					hx-target="body"
+					hx-swap="beforeend"
+				>Review</button>
 			</div>
 		</div>
 	</div>

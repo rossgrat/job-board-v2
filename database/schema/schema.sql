@@ -72,6 +72,14 @@ CREATE TABLE filter_condition (
     value TEXT NOT NULL
 );
 
+CREATE TABLE eval_entry (
+    id UUID PRIMARY KEY,
+    raw_job_id UUID NOT NULL REFERENCES raw_job(id) UNIQUE,
+    expected_category TEXT NOT NULL,
+    expected_relevance TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 CREATE TABLE outbox_task (
     id UUID PRIMARY KEY,
     classified_job_id UUID NOT NULL REFERENCES classified_job(id) ON DELETE CASCADE,

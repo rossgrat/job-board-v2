@@ -12,3 +12,7 @@ func formatBool(b bool) string {
 	}
 	return "no"
 }
+
+func statusVal(status string) string {
+	return fmt.Sprintf(`{"status":"%s"}`, status)
+}

@@ -1,0 +1,75 @@
+package templates
+
+templ ReviewModalContent(m ReviewModal) {
+	<div class="modal-backdrop" onclick="if(event.target===this)this.remove()">
+		<div class="modal">
+			<div class="modal__header">
+				<h2>{ m.Title }</h2>
+				<button class="btn" onclick="this.closest('.modal-backdrop').remove()">X</button>
+			</div>
+
+			<h3>Status</h3>
+			<div class="modal__status-buttons">
+				@statusButton(m.ClassifiedJobID, "", m.UserStatus)
+				@statusButton(m.ClassifiedJobID, "applied", m.UserStatus)
+				@statusButton(m.ClassifiedJobID, "tabled", m.UserStatus)
+				@statusButton(m.ClassifiedJobID, "rejected", m.UserStatus)
+			</div>
+
+			<h3>Eval</h3>
+			<p class="modal__model-says">
+				Model says: { m.ModelCategory }
+				if m.ModelRelevance != "" {
+					 / { m.ModelRelevance }
+				}
+			</p>
+			<form
+				hx-post={ "/jobs/" + m.ClassifiedJobID + "/eval" }
+				hx-swap="outerHTML"
+				hx-target="closest .modal-backdrop"
+				class="modal__eval-form"
+			>
+				<input type="hidden" name="raw_job_id" value={ m.RawJobID }/>
+				<label>Category</label>
+				<select name="expected_category">
+					@filterOption("backend_engineer", m.EvalCategory)
+					@filterOption("embedded_firmware", m.EvalCategory)
+					@filterOption("linux_kernel_networking", m.EvalCategory)
+					@filterOption("other_interesting", m.EvalCategory)
+					@filterOption("not_relevant", m.EvalCategory)
+				</select>
+				<label>Relevance</label>
+				<select name="expected_relevance">
+					<option value="">none</option>
+					@filterOption("strong_match", m.EvalRelevance)
+					@filterOption("good_match", m.EvalRelevance)
+					@filterOption("partial_match", m.EvalRelevance)
+					@filterOption("weak_match", m.EvalRelevance)
+				</select>
+				<button type="submit" class="btn btn-primary">
+					if m.HasEval {
+						Update Eval
+					} else {
+						Save Eval
+					}
+				</button>
+			</form>
+		</div>
+	</div>
+}
+
+templ statusButton(classifiedJobID string, status string, current string) {
+	<button
+		class={ "btn", templ.KV("btn-active", status == current) }
+		hx-post={ "/jobs/" + classifiedJobID + "/status" }
+		hx-vals={ statusVal(status) }
+		hx-target="closest .modal-backdrop"
+		hx-swap="outerHTML"
+	>
+		if status == "" {
+			New
+		} else {
+			{ status }
+		}
+	</button>
+}

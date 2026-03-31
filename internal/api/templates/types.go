@@ -25,10 +25,30 @@ type Location struct {
 }
 
 type CompanyItem struct {
-	ID       string
-	Name     string
-	Favicon  string
-	IsActive bool
+	ID        string
+	Name      string
+	Favicon   string
+	FetchType string
+	IsActive  bool
+}
+
+type FilterState struct {
+	Relevance    string
+	UserStatus   string
+	CompanyName  string
+	CompanyNames []string
+}
+
+type ReviewModal struct {
+	ClassifiedJobID  string
+	RawJobID         string
+	Title            string
+	UserStatus       string
+	ModelCategory    string
+	ModelRelevance   string
+	EvalCategory     string
+	EvalRelevance    string
+	HasEval          bool
 }
 
 type JobDetail struct {

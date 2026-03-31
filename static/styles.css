@@ -62,6 +62,7 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
     font-size: 11px;
     border-radius: var(--radius);
 }
+.badge--new { color: var(--accent); }
 .badge--applied { color: var(--success); }
 .badge--tabled { color: var(--tabled); }
 .badge--strong_match { color: var(--accent); }
@@ -107,6 +108,27 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .tag--tech { color: var(--accent); }
 .tag--tech::before { content: "#"; }
 
+/* Filters */
+.filters { display: flex; gap: 0.5rem; margin-bottom: 0.75rem; flex-wrap: wrap; }
+.filters select {
+    padding: 3px 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23777'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    cursor: pointer;
+}
+.filters select:focus { outline: none; border-color: var(--text-muted); }
+.filters select option { background: var(--surface); color: var(--text); }
+
 /* Company list */
 .company-list { display: flex; flex-direction: column; }
 .company-item {
@@ -119,6 +141,7 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .company-item:last-child { border-bottom: none; }
 .company-item__info { display: flex; align-items: center; gap: 0.5rem; }
 .company-item__name { font-weight: 600; }
+.company-item__type { color: var(--text-muted); font-size: 11px; }
 
 /* Detail page */
 .detail h2 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 0.75rem; }
@@ -132,6 +155,53 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .detail ul { list-style: none; font-size: 12px; }
 .detail ul li { color: var(--text-muted); padding: 0.1rem 0; }
 .detail .tags { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+
+/* Modal */
+.modal-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 100;
+}
+.modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    width: 100%;
+    max-width: 420px;
+    max-height: 90vh;
+    overflow-y: auto;
+}
+.modal__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+.modal__header h2 { font-size: 13px; font-weight: 700; color: var(--text); }
+.modal h3 { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin: 0.75rem 0 0.35rem; }
+.modal__status-buttons { display: flex; gap: 0.35rem; }
+.modal__model-says { font-size: 11px; color: var(--text-muted); margin-bottom: 0.5rem; }
+.modal__eval-form { display: flex; flex-direction: column; gap: 0.35rem; }
+.modal__eval-form label { font-size: 11px; color: var(--text-muted); }
+.modal__eval-form select {
+    padding: 3px 6px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 20px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='5'%3E%3Cpath d='M0 0l4 5 4-5z' fill='%23777'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+}
+.modal__eval-form button { align-self: flex-start; margin-top: 0.25rem; }
+.btn-active { color: var(--accent); border-color: var(--accent); }
+.btn-primary { color: var(--accent); border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent); color: var(--bg); }
 
 /* Responsive */
 @media (max-width: 600px) {

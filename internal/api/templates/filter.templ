@@ -1,0 +1,47 @@
+package templates
+
+import "fmt"
+
+templ FilterPage(jobs []DashboardJob, filters FilterState) {
+	@Layout("Browse") {
+		<div class="browse">
+			<h1>Browse</h1>
+			<form class="filters" method="get" action="/browse" onchange="this.submit()">
+				<select name="relevance">
+					<option value="">All relevance</option>
+					@filterOption("strong_match", filters.Relevance)
+					@filterOption("good_match", filters.Relevance)
+					@filterOption("partial_match", filters.Relevance)
+					@filterOption("weak_match", filters.Relevance)
+				</select>
+				<select name="user_status">
+					<option value="">All statuses</option>
+					@filterOption("new", filters.UserStatus)
+					@filterOption("applied", filters.UserStatus)
+					@filterOption("tabled", filters.UserStatus)
+					@filterOption("rejected", filters.UserStatus)
+				</select>
+				<select name="company">
+					<option value="">All companies</option>
+					for _, name := range filters.CompanyNames {
+						@filterOption(name, filters.CompanyName)
+					}
+				</select>
+			</form>
+			<p class="job-count">{ fmt.Sprintf("%d", len(jobs)) } jobs</p>
+			<div class="job-list">
+				for _, job := range jobs {
+					@JobListing(job)
+				}
+			</div>
+		</div>
+	}
+}
+
+templ filterOption(value string, selected string) {
+	if value == selected {
+		<option value={ value } selected>{ value }</option>
+	} else {
+		<option value={ value }>{ value }</option>
+	}
+}

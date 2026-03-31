@@ -50,6 +50,14 @@ type Company struct {
 	CreatedAt   pgtype.Timestamptz
 }
 
+type EvalEntry struct {
+	ID                pgtype.UUID
+	RawJobID          pgtype.UUID
+	ExpectedCategory  string
+	ExpectedRelevance pgtype.Text
+	CreatedAt         pgtype.Timestamptz
+}
+
 type FilterCondition struct {
 	ID            pgtype.UUID
 	FilterGroupID pgtype.UUID

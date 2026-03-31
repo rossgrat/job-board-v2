@@ -108,3 +108,110 @@ func (q *Queries) ListDashboardJobs(ctx context.Context) ([]ListDashboardJobsRow
 	}
 	return items, nil
 }
+
+const listFilteredJobs = `-- name: ListFilteredJobs :many
+SELECT
+    cj.id,
+    cj.title,
+    cj.salary_min,
+    cj.salary_max,
+    cj.level,
+    cj.category,
+    cj.relevance,
+    rj.id AS raw_job_id,
+    rj.url,
+    rj.discovered_at,
+    rj.user_status,
+    c.name AS company_name,
+    c.favicon_url AS company_favicon_url,
+    COALESCE(
+        array_agg(DISTINCT cjl.setting || ':' || cjl.country || ':' || COALESCE(cjl.city, ''))
+        FILTER (WHERE cjl.id IS NOT NULL),
+        '{}'
+    )::text[] AS locations,
+    COALESCE(
+        array_agg(DISTINCT cjt.name)
+        FILTER (WHERE cjt.id IS NOT NULL),
+        '{}'
+    )::text[] AS technologies
+FROM classified_job cj
+JOIN raw_job rj ON rj.id = cj.raw_job_id
+JOIN company c ON c.id = rj.company_id
+LEFT JOIN classified_job_location cjl ON cjl.classified_job_id = cj.id
+LEFT JOIN classified_job_technology cjt ON cjt.classified_job_id = cj.id
+WHERE cj.is_current = true
+  AND cj.status IN ('accepted', 'filtered_relevance')
+  AND ($1::text = '' OR cj.relevance = $1)
+  AND ($2::text = '' OR
+       ($2 = 'new' AND rj.user_status IS NULL) OR
+       ($2 != 'new' AND rj.user_status = $2))
+  AND ($3::text = '' OR c.name = $3)
+GROUP BY cj.id, rj.id, c.id
+ORDER BY
+    CASE WHEN rj.user_status IS NULL THEN 0
+         WHEN rj.user_status = 'applied' THEN 1
+         WHEN rj.user_status = 'tabled' THEN 2
+         ELSE 3 END,
+    CASE WHEN cj.relevance = 'strong_match' THEN 0 ELSE 1 END,
+    rj.discovered_at DESC
+`
+
+type ListFilteredJobsParams struct {
+	Relevance   string
+	UserStatus  string
+	CompanyName string
+}
+
+type ListFilteredJobsRow struct {
+	ID                pgtype.UUID
+	Title             pgtype.Text
+	SalaryMin         pgtype.Int4
+	SalaryMax         pgtype.Int4
+	Level             pgtype.Text
+	Category          pgtype.Text
+	Relevance         pgtype.Text
+	RawJobID          pgtype.UUID
+	Url               string
+	DiscoveredAt      pgtype.Timestamptz
+	UserStatus        pgtype.Text
+	CompanyName       string
+	CompanyFaviconUrl string
+	Locations         []string
+	Technologies      []string
+}
+
+func (q *Queries) ListFilteredJobs(ctx context.Context, arg ListFilteredJobsParams) ([]ListFilteredJobsRow, error) {
+	rows, err := q.db.Query(ctx, listFilteredJobs, arg.Relevance, arg.UserStatus, arg.CompanyName)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListFilteredJobsRow
+	for rows.Next() {
+		var i ListFilteredJobsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Title,
+			&i.SalaryMin,
+			&i.SalaryMax,
+			&i.Level,
+			&i.Category,
+			&i.Relevance,
+			&i.RawJobID,
+			&i.Url,
+			&i.DiscoveredAt,
+			&i.UserStatus,
+			&i.CompanyName,
+			&i.CompanyFaviconUrl,
+			&i.Locations,
+			&i.Technologies,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}

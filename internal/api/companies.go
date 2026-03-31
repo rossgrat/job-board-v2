@@ -22,10 +22,11 @@ func (s *Server) handleCompanies(w http.ResponseWriter, r *http.Request) {
 	companies := make([]templates.CompanyItem, 0, len(rows))
 	for _, row := range rows {
 		companies = append(companies, templates.CompanyItem{
-			ID:       uuidToString(row.ID),
-			Name:     row.Name,
-			Favicon:  row.FaviconUrl,
-			IsActive: row.IsActive,
+			ID:        uuidToString(row.ID),
+			Name:      row.Name,
+			Favicon:   row.FaviconUrl,
+			FetchType: row.FetchType,
+			IsActive:  row.IsActive,
 		})
 	}
 
@@ -61,10 +62,11 @@ func (s *Server) handleCompanyToggle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	item := templates.CompanyItem{
-		ID:       uuidToString(id),
-		Name:     company.Name,
-		Favicon:  company.FaviconUrl,
-		IsActive: newActive,
+		ID:        uuidToString(id),
+		Name:      company.Name,
+		Favicon:   company.FaviconUrl,
+		FetchType: company.FetchType,
+		IsActive:  newActive,
 	}
 
 	templates.CompanyItemFragment(item).Render(ctx, w)
