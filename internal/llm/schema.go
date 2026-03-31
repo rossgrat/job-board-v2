@@ -37,3 +37,22 @@ var NormalizeSchema = map[string]any{
 	"required":             []string{"title", "locations", "technologies", "salary_min", "salary_max", "level"},
 	"additionalProperties": false,
 }
+
+var ClassifySchema = map[string]any{
+	"type": "object",
+	"properties": map[string]any{
+		"category": map[string]any{
+			"type": "string",
+			"enum": []string{"backend_engineer", "embedded_firmware", "linux_kernel_networking", "other_interesting", "not_relevant"},
+		},
+		"relevance": map[string]any{
+			"anyOf": []any{
+				map[string]any{"type": "string", "enum": []string{"strong_match", "good_match", "partial_match", "weak_match"}},
+				map[string]any{"type": "null"},
+			},
+		},
+		"reasoning": map[string]any{"type": "string"},
+	},
+	"required":             []string{"category", "relevance", "reasoning"},
+	"additionalProperties": false,
+}

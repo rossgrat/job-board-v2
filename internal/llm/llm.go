@@ -2,6 +2,8 @@ package llm
 
 import (
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -61,6 +63,11 @@ func (c *Client) LoadPrompt(path string) error {
 
 	c.systemPrompt = prompt
 	return nil
+}
+
+func (c *Client) PromptHash() string {
+	hash := sha256.Sum256([]byte(c.systemPrompt))
+	return hex.EncodeToString(hash[:])[:12]
 }
 
 func Complete[T any](ctx context.Context, c *Client, userMessage string) (*T, error) {

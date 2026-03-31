@@ -175,6 +175,56 @@ func (q *Queries) ListClassifiedJobIDsByStatus(ctx context.Context, status strin
 	return items, nil
 }
 
+const listNormalizedClassifiedJobIDs = `-- name: ListNormalizedClassifiedJobIDs :many
+SELECT id FROM classified_job WHERE normalized_at IS NOT NULL AND is_current = true
+`
+
+func (q *Queries) ListNormalizedClassifiedJobIDs(ctx context.Context) ([]pgtype.UUID, error) {
+	rows, err := q.db.Query(ctx, listNormalizedClassifiedJobIDs)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []pgtype.UUID
+	for rows.Next() {
+		var id pgtype.UUID
+		if err := rows.Scan(&id); err != nil {
+			return nil, err
+		}
+		items = append(items, id)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateClassifiedJobClassification = `-- name: UpdateClassifiedJobClassification :exec
+UPDATE classified_job
+SET category = $2, relevance = $3, reasoning = $4, classified_at = now(),
+    classification_prompt_version = $5
+WHERE id = $1
+`
+
+type UpdateClassifiedJobClassificationParams struct {
+	ID                          pgtype.UUID
+	Category                    pgtype.Text
+	Relevance                   pgtype.Text
+	Reasoning                   pgtype.Text
+	ClassificationPromptVersion pgtype.Text
+}
+
+func (q *Queries) UpdateClassifiedJobClassification(ctx context.Context, arg UpdateClassifiedJobClassificationParams) error {
+	_, err := q.db.Exec(ctx, updateClassifiedJobClassification,
+		arg.ID,
+		arg.Category,
+		arg.Relevance,
+		arg.Reasoning,
+		arg.ClassificationPromptVersion,
+	)
+	return err
+}
+
 const updateClassifiedJobNormalization = `-- name: UpdateClassifiedJobNormalization :exec
 UPDATE classified_job
 SET title = $2, salary_min = $3, salary_max = $4, level = $5, normalized_at = now()

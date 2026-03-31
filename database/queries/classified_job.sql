@@ -12,6 +12,9 @@ UPDATE classified_job SET status = $2 WHERE id = $1;
 -- name: ListClassifiedJobIDsByStatus :many
 SELECT id FROM classified_job WHERE status = $1 AND is_current = true;
 
+-- name: ListNormalizedClassifiedJobIDs :many
+SELECT id FROM classified_job WHERE normalized_at IS NOT NULL AND is_current = true;
+
 -- name: ClearCurrentClassifiedJob :exec
 UPDATE classified_job SET is_current = false WHERE id = $1;
 
@@ -30,3 +33,9 @@ VALUES ($1, $2, $3);
 
 -- name: GetClassifiedJobLocations :many
 SELECT * FROM classified_job_location WHERE classified_job_id = $1;
+
+-- name: UpdateClassifiedJobClassification :exec
+UPDATE classified_job
+SET category = $2, relevance = $3, reasoning = $4, classified_at = now(),
+    classification_prompt_version = $5
+WHERE id = $1;

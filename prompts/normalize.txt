@@ -10,6 +10,10 @@ and description body. A single job may have multiple locations. For each:
 - city: "City, State/Province" format if available, null if not
 - setting: one of "remote", "hybrid", or "onsite"
 When ambiguous, default setting to "onsite".
+Normalization rules for city names:
+- Always include the two-letter state abbreviation for US/CA cities (e.g. "Seattle, WA" not "Seattle")
+- For non-US/CA cities, use the city name only (e.g. "London" not "London, England")
+- Never use "Remote" as a city name
 
 Technologies: Extract technologies mentioned as requirements or
 preferences. Return as lowercase strings. Do not include generic tools

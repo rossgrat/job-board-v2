@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rossgrat/job-board-v2/database/gen/db"
+	"github.com/rossgrat/job-board-v2/database/pgutil"
 	"github.com/rossgrat/job-board-v2/internal/llm"
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
 	"github.com/rossgrat/job-board-v2/internal/worker/outbox"
@@ -84,8 +85,8 @@ func (h *Handler) Handle(ctx context.Context, task db.OutboxTask) (*outbox.TaskR
 	err = qtx.UpdateClassifiedJobNormalization(ctx, db.UpdateClassifiedJobNormalizationParams{
 		ID:        task.ClassifiedJobID,
 		Title:     pgtype.Text{String: result.Title, Valid: result.Title != ""},
-		SalaryMin: toPgInt4(result.SalaryMin),
-		SalaryMax: toPgInt4(result.SalaryMax),
+		SalaryMin: pgutil.ToPgInt4(result.SalaryMin),
+		SalaryMax: pgutil.ToPgInt4(result.SalaryMax),
 		Level:     pgtype.Text{String: result.Level, Valid: result.Level != ""},
 	})
 	if err != nil {
@@ -97,7 +98,7 @@ func (h *Handler) Handle(ctx context.Context, task db.OutboxTask) (*outbox.TaskR
 			ID:              pgtype.UUID{Bytes: uuid.Must(uuid.NewV7()), Valid: true},
 			ClassifiedJobID: task.ClassifiedJobID,
 			Country:         loc.Country,
-			City:            toPgText(loc.City),
+			City:            pgutil.ToPgText(loc.City),
 			Setting:         loc.Setting,
 		})
 		if err != nil {
@@ -121,18 +122,4 @@ func (h *Handler) Handle(ctx context.Context, task db.OutboxTask) (*outbox.TaskR
 	}
 
 	return &outbox.TaskResult{NextTaskName: constants.PipelineHardFilter}, nil
-}
-
-func toPgInt4(v *int32) pgtype.Int4 {
-	if v == nil {
-		return pgtype.Int4{}
-	}
-	return pgtype.Int4{Int32: *v, Valid: true}
-}
-
-func toPgText(v *string) pgtype.Text {
-	if v == nil {
-		return pgtype.Text{}
-	}
-	return pgtype.Text{String: *v, Valid: true}
 }

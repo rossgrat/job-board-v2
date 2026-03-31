@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rossgrat/job-board-v2/internal/config"
 	"github.com/rossgrat/job-board-v2/internal/llm"
+	"github.com/rossgrat/job-board-v2/internal/worker/classify"
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher"
 	"github.com/rossgrat/job-board-v2/internal/worker/filter"
@@ -25,12 +26,14 @@ const (
 	triageConcurrency      = 1
 	normalizeConcurrency   = 1
 	filterConcurrency      = 1
+	classifyConcurrency    = 1
 )
 
 var (
 	ErrInitFetcher       = errors.New("failed to init fetcher")
 	ErrInitTriageLLM     = errors.New("failed to init triage llm")
 	ErrInitNormalizeLLM  = errors.New("failed to init normalize llm")
+	ErrInitClassifyLLM   = errors.New("failed to init classify llm")
 )
 
 type Worker struct {
@@ -92,14 +95,35 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Worker, 
 		outbox.WithConcurrency(filterConcurrency),
 	)
 
+	// Initialize classify LLM
+	classifyLLM, err := llm.New(cfg.Anthropic.APIKey,
+		llm.WithRateLimiter(llmLimiter),
+		llm.WithSchema(llm.ClassifySchema),
+	)
+	if err != nil {
+		return nil, fmt.Errorf("%s:%w:%w", fn, ErrInitClassifyLLM, err)
+	}
+
+	if err := classifyLLM.LoadPrompt("prompts/classify.txt"); err != nil {
+		return nil, fmt.Errorf("%s:%w:%w", fn, ErrInitClassifyLLM, err)
+	}
+
+	// Initialize classify handler + outbox worker
+	classifyHandler := classify.New(pool, classifyLLM)
+	classifyWorker := outbox.New(pool, constants.PipelineClassify, classifyHandler,
+		outbox.WithConcurrency(classifyConcurrency),
+	)
+
 	r := runner.New(
 		runner.WithProcess(f.NewFetcherRunner()),
 		runner.WithProcess(triageWorker.NewOutboxRunner()),
 		runner.WithProcess(normalizeWorker.NewOutboxRunner()),
 		runner.WithProcess(filterWorker.NewOutboxRunner()),
+		runner.WithProcess(classifyWorker.NewOutboxRunner()),
 		runner.WithCloser(triageWorker.NewOutboxCloser()),
 		runner.WithCloser(normalizeWorker.NewOutboxCloser()),
 		runner.WithCloser(filterWorker.NewOutboxCloser()),
+		runner.WithCloser(classifyWorker.NewOutboxCloser()),
 	)
 
 	return &Worker{r: r}, nil
