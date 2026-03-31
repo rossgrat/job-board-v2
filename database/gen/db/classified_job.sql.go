@@ -11,6 +11,15 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const clearCurrentClassifiedJob = `-- name: ClearCurrentClassifiedJob :exec
+UPDATE classified_job SET is_current = false WHERE id = $1
+`
+
+func (q *Queries) ClearCurrentClassifiedJob(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, clearCurrentClassifiedJob, id)
+	return err
+}
+
 const createClassifiedJob = `-- name: CreateClassifiedJob :one
 INSERT INTO classified_job (id, raw_job_id, is_current)
 VALUES ($1, $2, true)
@@ -112,8 +121,38 @@ func (q *Queries) GetClassifiedJobByID(ctx context.Context, id pgtype.UUID) (Cla
 	return i, err
 }
 
+const getClassifiedJobLocations = `-- name: GetClassifiedJobLocations :many
+SELECT id, classified_job_id, country, city, setting FROM classified_job_location WHERE classified_job_id = $1
+`
+
+func (q *Queries) GetClassifiedJobLocations(ctx context.Context, classifiedJobID pgtype.UUID) ([]ClassifiedJobLocation, error) {
+	rows, err := q.db.Query(ctx, getClassifiedJobLocations, classifiedJobID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ClassifiedJobLocation
+	for rows.Next() {
+		var i ClassifiedJobLocation
+		if err := rows.Scan(
+			&i.ID,
+			&i.ClassifiedJobID,
+			&i.Country,
+			&i.City,
+			&i.Setting,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listClassifiedJobIDsByStatus = `-- name: ListClassifiedJobIDsByStatus :many
-SELECT id FROM classified_job WHERE status = $1
+SELECT id FROM classified_job WHERE status = $1 AND is_current = true
 `
 
 func (q *Queries) ListClassifiedJobIDsByStatus(ctx context.Context, status string) ([]pgtype.UUID, error) {

@@ -47,14 +47,28 @@ func runRetriage(cmd *cobra.Command, args []string) error {
 	defer pool.Close()
 
 	queries := db.New(pool)
-	ids, err := queries.ListClassifiedJobIDsByStatus(ctx, statusFlag)
+	oldJobs, err := queries.ListClassifiedJobIDsByStatus(ctx, statusFlag)
 	if err != nil {
 		return fmt.Errorf("listing jobs: %w", err)
 	}
 
-	if len(ids) == 0 {
+	if len(oldJobs) == 0 {
 		fmt.Printf("no classified jobs with status %q\n", statusFlag)
 		return nil
+	}
+
+	// Look up the raw_job_id for each old classified_job
+	type retriage struct {
+		oldID    pgtype.UUID
+		rawJobID pgtype.UUID
+	}
+	jobs := make([]retriage, 0, len(oldJobs))
+	for _, id := range oldJobs {
+		cj, err := queries.GetClassifiedJobByID(ctx, id)
+		if err != nil {
+			return fmt.Errorf("loading classified job: %w", err)
+		}
+		jobs = append(jobs, retriage{oldID: id, rawJobID: cj.RawJobID})
 	}
 
 	tx, err := pool.BeginTx(ctx, pgx.TxOptions{})
@@ -64,18 +78,26 @@ func runRetriage(cmd *cobra.Command, args []string) error {
 	defer tx.Rollback(ctx)
 
 	qtx := db.New(tx)
-	for _, id := range ids {
-		err = qtx.UpdateClassifiedJobStatus(ctx, db.UpdateClassifiedJobStatusParams{
-			ID:     id,
-			Status: constants.StatusPending,
-		})
+	for _, j := range jobs {
+		// Mark old classified_job as no longer current
+		err = qtx.ClearCurrentClassifiedJob(ctx, j.oldID)
 		if err != nil {
-			return fmt.Errorf("resetting job status: %w", err)
+			return fmt.Errorf("clearing current flag: %w", err)
 		}
 
+		// Create a fresh classified_job for the raw_job
+		newJob, err := qtx.CreateClassifiedJob(ctx, db.CreateClassifiedJobParams{
+			ID:       pgtype.UUID{Bytes: uuid.Must(uuid.NewV7()), Valid: true},
+			RawJobID: j.rawJobID,
+		})
+		if err != nil {
+			return fmt.Errorf("creating classified job: %w", err)
+		}
+
+		// Queue triage for the new classified_job
 		_, err = qtx.CreateOutboxTask(ctx, db.CreateOutboxTaskParams{
 			ID:              pgtype.UUID{Bytes: uuid.Must(uuid.NewV7()), Valid: true},
-			ClassifiedJobID: id,
+			ClassifiedJobID: newJob.ID,
 			TaskName:        constants.PipelineTriage,
 		})
 		if err != nil {
@@ -87,6 +109,6 @@ func runRetriage(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("commit tx: %w", err)
 	}
 
-	fmt.Printf("re-queued %d jobs for triage\n", len(ids))
+	fmt.Printf("re-queued %d jobs for triage\n", len(jobs))
 	return nil
 }

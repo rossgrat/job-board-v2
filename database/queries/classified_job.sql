@@ -10,7 +10,10 @@ SELECT * FROM classified_job WHERE id = $1;
 UPDATE classified_job SET status = $2 WHERE id = $1;
 
 -- name: ListClassifiedJobIDsByStatus :many
-SELECT id FROM classified_job WHERE status = $1;
+SELECT id FROM classified_job WHERE status = $1 AND is_current = true;
+
+-- name: ClearCurrentClassifiedJob :exec
+UPDATE classified_job SET is_current = false WHERE id = $1;
 
 -- name: UpdateClassifiedJobNormalization :exec
 UPDATE classified_job
@@ -24,3 +27,6 @@ VALUES ($1, $2, $3, $4, $5);
 -- name: CreateClassifiedJobTechnology :exec
 INSERT INTO classified_job_technology (id, classified_job_id, name)
 VALUES ($1, $2, $3);
+
+-- name: GetClassifiedJobLocations :many
+SELECT * FROM classified_job_location WHERE classified_job_id = $1;

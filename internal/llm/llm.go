@@ -12,6 +12,8 @@ import (
 	"golang.org/x/time/rate"
 )
 
+const defaultMaxRetries = 5
+
 var (
 	ErrRateLimit       = errors.New("rate limit exceeded")
 	ErrAPICall         = errors.New("llm api call failed")
@@ -33,7 +35,7 @@ func New(apiKey string, opts ...Option) (*Client, error) {
 	const fn = "llm::New"
 
 	c := &Client{
-		client: anthropic.NewClient(option.WithAPIKey(apiKey)),
+		client: anthropic.NewClient(option.WithAPIKey(apiKey), option.WithMaxRetries(defaultMaxRetries)),
 		model:  anthropic.ModelClaudeHaiku4_5,
 	}
 

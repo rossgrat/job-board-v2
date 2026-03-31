@@ -11,11 +11,20 @@ import (
 	"github.com/rossgrat/job-board-v2/internal/llm"
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher"
+	"github.com/rossgrat/job-board-v2/internal/worker/filter"
 	"github.com/rossgrat/job-board-v2/internal/worker/normalize"
 	"github.com/rossgrat/job-board-v2/internal/worker/outbox"
 	"github.com/rossgrat/job-board-v2/internal/worker/triage"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
 	"golang.org/x/time/rate"
+)
+
+const (
+	llmRateInterval        = 4 * time.Second
+	llmRateBurst           = 1
+	triageConcurrency      = 1
+	normalizeConcurrency   = 1
+	filterConcurrency      = 1
 )
 
 var (
@@ -37,8 +46,7 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Worker, 
 		return nil, fmt.Errorf("%s:%w:%w", fn, ErrInitFetcher, err)
 	}
 
-	// Shared LLM rate limiter — 1 request every 1.5 seconds (~20K tokens/min at ~500 tokens/req)
-	llmLimiter := rate.NewLimiter(rate.Every(1500*time.Millisecond), 1)
+	llmLimiter := rate.NewLimiter(rate.Every(llmRateInterval), llmRateBurst)
 
 	// Initialize triage LLM
 	triageLLM, err := llm.New(cfg.Anthropic.APIKey,
@@ -56,7 +64,7 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Worker, 
 	// Initialize triage handler + outbox worker
 	triageHandler := triage.New(pool, triageLLM)
 	triageWorker := outbox.New(pool, constants.PipelineTriage, triageHandler,
-		outbox.WithConcurrency(3),
+		outbox.WithConcurrency(triageConcurrency),
 	)
 
 	// Initialize normalize LLM
@@ -75,15 +83,23 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Worker, 
 	// Initialize normalize handler + outbox worker
 	normalizeHandler := normalize.New(pool, normalizeLLM)
 	normalizeWorker := outbox.New(pool, constants.PipelineNormalize, normalizeHandler,
-		outbox.WithConcurrency(3),
+		outbox.WithConcurrency(normalizeConcurrency),
+	)
+
+	// Initialize filter handler + outbox worker
+	filterHandler := filter.New(pool)
+	filterWorker := outbox.New(pool, constants.PipelineHardFilter, filterHandler,
+		outbox.WithConcurrency(filterConcurrency),
 	)
 
 	r := runner.New(
 		runner.WithProcess(f.NewFetcherRunner()),
 		runner.WithProcess(triageWorker.NewOutboxRunner()),
 		runner.WithProcess(normalizeWorker.NewOutboxRunner()),
+		runner.WithProcess(filterWorker.NewOutboxRunner()),
 		runner.WithCloser(triageWorker.NewOutboxCloser()),
 		runner.WithCloser(normalizeWorker.NewOutboxCloser()),
+		runner.WithCloser(filterWorker.NewOutboxCloser()),
 	)
 
 	return &Worker{r: r}, nil

@@ -50,6 +50,19 @@ type Company struct {
 	CreatedAt   pgtype.Timestamptz
 }
 
+type FilterCondition struct {
+	ID            pgtype.UUID
+	FilterGroupID pgtype.UUID
+	Field         string
+	Operator      string
+	Value         string
+}
+
+type FilterGroup struct {
+	ID       pgtype.UUID
+	IsActive bool
+}
+
 type OutboxTask struct {
 	ID              pgtype.UUID
 	ClassifiedJobID pgtype.UUID

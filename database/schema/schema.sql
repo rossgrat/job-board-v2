@@ -59,6 +59,19 @@ CREATE TABLE classified_job_technology (
     name TEXT NOT NULL
 );
 
+CREATE TABLE filter_group (
+    id UUID PRIMARY KEY,
+    is_active BOOLEAN NOT NULL DEFAULT true
+);
+
+CREATE TABLE filter_condition (
+    id UUID PRIMARY KEY,
+    filter_group_id UUID NOT NULL REFERENCES filter_group(id) ON DELETE CASCADE,
+    field TEXT NOT NULL,
+    operator TEXT NOT NULL,
+    value TEXT NOT NULL
+);
+
 CREATE TABLE outbox_task (
     id UUID PRIMARY KEY,
     classified_job_id UUID NOT NULL REFERENCES classified_job(id) ON DELETE CASCADE,

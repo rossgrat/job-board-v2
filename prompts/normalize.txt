@@ -14,6 +14,11 @@ When ambiguous, default setting to "onsite".
 Technologies: Extract technologies mentioned as requirements or
 preferences. Return as lowercase strings. Do not include generic tools
 (git, jira, linux) unless they are core to the role.
+Normalization rules for technology names:
+- Use the official short name (e.g. "go" not "golang", "postgresql" not "postgres")
+- Never pluralize (e.g. "llm" not "llms")
+- Use dotted format for JS ecosystem tools (e.g. "next.js" not "nextjs")
+- Never combine languages with slashes (e.g. list "c" and "c++" separately, not "c/c++")
 
 Salary: Extract minimum and maximum annual salary in USD if present.
 Null if not mentioned. Normalize to annual (convert hourly/monthly if needed).
