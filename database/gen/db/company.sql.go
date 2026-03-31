@@ -116,6 +116,38 @@ func (q *Queries) GetCompanyByName(ctx context.Context, name string) (Company, e
 	return i, err
 }
 
+const listCompanies = `-- name: ListCompanies :many
+SELECT id, name, fetch_type, fetch_config, favicon_url, is_active, created_at FROM company ORDER BY name
+`
+
+func (q *Queries) ListCompanies(ctx context.Context) ([]Company, error) {
+	rows, err := q.db.Query(ctx, listCompanies)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []Company
+	for rows.Next() {
+		var i Company
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.FetchType,
+			&i.FetchConfig,
+			&i.FaviconUrl,
+			&i.IsActive,
+			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const setCompanyActive = `-- name: SetCompanyActive :exec
 UPDATE company SET is_active = $2 WHERE id = $1
 `

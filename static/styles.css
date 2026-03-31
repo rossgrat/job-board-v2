@@ -50,6 +50,10 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 }
 .btn:hover { color: var(--text); border-color: var(--text-muted); }
 .btn:disabled { opacity: 0.3; cursor: default; pointer-events: none; }
+.btn-success { color: var(--success); border-color: var(--success); }
+.btn-success:hover { background: var(--success); color: var(--bg); }
+.btn-danger { color: var(--danger); border-color: var(--danger); }
+.btn-danger:hover { background: var(--danger); color: var(--bg); }
 
 /* Badges */
 .badge {
@@ -102,6 +106,19 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .tag { color: var(--text-muted); font-size: 11px; }
 .tag--tech { color: var(--accent); }
 .tag--tech::before { content: "#"; }
+
+/* Company list */
+.company-list { display: flex; flex-direction: column; }
+.company-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0;
+    border-bottom: 1px solid var(--border);
+}
+.company-item:last-child { border-bottom: none; }
+.company-item__info { display: flex; align-items: center; gap: 0.5rem; }
+.company-item__name { font-weight: 600; }
 
 /* Detail page */
 .detail h2 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 0.75rem; }

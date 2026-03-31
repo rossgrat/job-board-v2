@@ -24,6 +24,13 @@ type Location struct {
 	City    string
 }
 
+type CompanyItem struct {
+	ID       string
+	Name     string
+	Favicon  string
+	IsActive bool
+}
+
 type JobDetail struct {
 	// Classified job fields
 	ID                          string

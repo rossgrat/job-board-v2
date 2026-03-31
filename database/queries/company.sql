@@ -3,6 +3,9 @@ INSERT INTO company (id, name, fetch_type, fetch_config, favicon_url)
 VALUES ($1, $2, $3, $4, $5)
 RETURNING *;
 
+-- name: ListCompanies :many
+SELECT * FROM company ORDER BY name;
+
 -- name: GetActiveCompanies :many
 SELECT * FROM company WHERE is_active = true;
 

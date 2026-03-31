@@ -27,7 +27,7 @@ func New(pool *pgxpool.Pool, cfg *config.Config) *Server {
 		cfg:    cfg,
 	}
 
-	s.router.Use(middleware.Logger)
+	s.router.Use(slogRequestLogger)
 	s.router.Use(middleware.Recoverer)
 	s.routes()
 

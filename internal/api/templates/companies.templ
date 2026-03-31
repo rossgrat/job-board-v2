@@ -1,0 +1,56 @@
+package templates
+
+templ CompaniesPage(companies []CompanyItem) {
+	@Layout("Companies") {
+		<div class="companies">
+			<h1>Companies</h1>
+			<div class="company-list">
+				for _, c := range companies {
+					<div class="company-item">
+						<div class="company-item__info">
+							if c.Favicon != "" {
+								<img class="favicon" src={ c.Favicon } alt="" width="14" height="14"/>
+							}
+							<span class="company-item__name">{ c.Name }</span>
+						</div>
+						<button
+							class={ "btn", templ.KV("btn-success", c.IsActive), templ.KV("btn-danger", !c.IsActive) }
+							hx-post={ "/companies/" + c.ID + "/toggle" }
+							hx-swap="outerHTML"
+							hx-target="closest .company-item"
+						>
+							if c.IsActive {
+								Active
+							} else {
+								Inactive
+							}
+						</button>
+					</div>
+				}
+			</div>
+		</div>
+	}
+}
+
+templ CompanyItemFragment(c CompanyItem) {
+	<div class="company-item">
+		<div class="company-item__info">
+			if c.Favicon != "" {
+				<img class="favicon" src={ c.Favicon } alt="" width="14" height="14"/>
+			}
+			<span class="company-item__name">{ c.Name }</span>
+		</div>
+		<button
+			class={ "btn", templ.KV("btn-success", c.IsActive), templ.KV("btn-danger", !c.IsActive) }
+			hx-post={ "/companies/" + c.ID + "/toggle" }
+			hx-swap="outerHTML"
+			hx-target="closest .company-item"
+		>
+			if c.IsActive {
+				Active
+			} else {
+				Inactive
+			}
+		</button>
+	</div>
+}
