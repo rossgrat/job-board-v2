@@ -11,20 +11,30 @@ import (
 
 func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request) {
 	queries := db.New(s.pool)
+	ctx := r.Context()
 
-	rows, err := queries.ListDashboardJobs(r.Context())
+	rows, err := queries.ListDashboardJobs(ctx)
 	if err != nil {
 		slog.Error("failed to list dashboard jobs", slog.String("err", err.Error()))
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 	}
 
-	jobs := make([]templates.DashboardJob, 0, len(rows))
-	for _, row := range rows {
-		jobs = append(jobs, toDashboardJob(row))
+	locFilters, err := s.loadLocationFilters(ctx)
+	if err != nil {
+		slog.Error("failed to load location filters", slog.String("err", err.Error()))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
 	}
 
-	templates.DashboardPage(jobs).Render(r.Context(), w)
+	jobs := make([]templates.DashboardJob, 0, len(rows))
+	for _, row := range rows {
+		j := toDashboardJob(row)
+		j.Locations = filterLocations(j.Locations, locFilters)
+		jobs = append(jobs, j)
+	}
+
+	templates.DashboardPage(jobs).Render(ctx, w)
 }
 
 func toDashboardJob(row db.ListDashboardJobsRow) templates.DashboardJob {

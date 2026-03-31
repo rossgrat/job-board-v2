@@ -2,13 +2,12 @@ package filter
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rossgrat/job-board-v2/database/gen/db"
+	"github.com/rossgrat/job-board-v2/internal/filter"
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
 	"github.com/rossgrat/job-board-v2/internal/worker/outbox"
 )
@@ -96,49 +95,28 @@ func (h *Handler) Handle(ctx context.Context, task db.OutboxTask) (*outbox.TaskR
 }
 
 func evaluateGroup(job db.ClassifiedJob, locations []db.ClassifiedJobLocation, conditions []db.FilterCondition) (bool, filterResult) {
-	locationConditions, jobConditions := splitConditions(conditions)
+	locationConditions, jobConditions := filter.SplitConditions(conditions)
 
-	if len(locationConditions) > 0 && !anyLocationPassesAll(locations, locationConditions) {
-		return false, filteredLocation
+	if len(locationConditions) > 0 {
+		passed := false
+		for _, loc := range locations {
+			if filter.LocationPassesAll(loc, locationConditions) {
+				passed = true
+				break
+			}
+		}
+		if !passed {
+			return false, filteredLocation
+		}
 	}
 
 	for _, condition := range jobConditions {
-		if !checkCondition(resolveJobField(job, condition.Field), condition.Operator, condition.Value) {
+		if !filter.CheckCondition(resolveJobField(job, condition.Field), condition.Operator, condition.Value) {
 			return false, fieldToResult[condition.Field]
 		}
 	}
 
 	return true, filterNone
-}
-
-func splitConditions(conditions []db.FilterCondition) ([]db.FilterCondition, []db.FilterCondition) {
-	var locationConditions, jobConditions []db.FilterCondition
-	for _, condition := range conditions {
-		if strings.HasPrefix(condition.Field, "location_") {
-			locationConditions = append(locationConditions, condition)
-		} else {
-			jobConditions = append(jobConditions, condition)
-		}
-	}
-	return locationConditions, jobConditions
-}
-
-func anyLocationPassesAll(locations []db.ClassifiedJobLocation, conditions []db.FilterCondition) bool {
-	for _, location := range locations {
-		if locationPassesAll(location, conditions) {
-			return true
-		}
-	}
-	return false
-}
-
-func locationPassesAll(location db.ClassifiedJobLocation, conditions []db.FilterCondition) bool {
-	for _, condition := range conditions {
-		if !checkCondition(resolveLocationField(location, condition.Field), condition.Operator, condition.Value) {
-			return false
-		}
-	}
-	return true
 }
 
 func resolveJobField(job db.ClassifiedJob, field string) string {
@@ -148,47 +126,4 @@ func resolveJobField(job db.ClassifiedJob, field string) string {
 	default:
 		return ""
 	}
-}
-
-func resolveLocationField(location db.ClassifiedJobLocation, field string) string {
-	switch field {
-	case "location_country":
-		return location.Country
-	case "location_city":
-		return location.City.String
-	case "location_setting":
-		return location.Setting
-	default:
-		return ""
-	}
-}
-
-func checkCondition(fieldValue, operator, value string) bool {
-	switch operator {
-	case "equals":
-		return strings.EqualFold(fieldValue, value)
-	case "not_equals":
-		return !strings.EqualFold(fieldValue, value)
-	case "contains":
-		return strings.Contains(strings.ToLower(fieldValue), strings.ToLower(value))
-	case "in":
-		return isInList(fieldValue, value)
-	case "not_in":
-		return !isInList(fieldValue, value)
-	default:
-		return false
-	}
-}
-
-func isInList(fieldValue, jsonArray string) bool {
-	var list []string
-	if err := json.Unmarshal([]byte(jsonArray), &list); err != nil {
-		return false
-	}
-	for _, item := range list {
-		if strings.EqualFold(fieldValue, item) {
-			return true
-		}
-	}
-	return false
 }

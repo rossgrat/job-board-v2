@@ -28,9 +28,18 @@ func (s *Server) handleFilter(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	locFilters, err := s.loadLocationFilters(ctx)
+	if err != nil {
+		slog.Error("failed to load location filters", slog.String("err", err.Error()))
+		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+		return
+	}
+
 	jobs := make([]templates.DashboardJob, 0, len(rows))
 	for _, row := range rows {
-		jobs = append(jobs, toFilteredJob(row))
+		j := toFilteredJob(row)
+		j.Locations = filterLocations(j.Locations, locFilters)
+		jobs = append(jobs, j)
 	}
 
 	companies, err := queries.ListCompanies(ctx)
