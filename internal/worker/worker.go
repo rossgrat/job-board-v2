@@ -9,6 +9,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rossgrat/job-board-v2/internal/config"
 	"github.com/rossgrat/job-board-v2/internal/llm"
+	"github.com/rossgrat/job-board-v2/internal/worker/cleanup"
 	"github.com/rossgrat/job-board-v2/internal/worker/classify"
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher"
@@ -114,12 +115,16 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Worker, 
 		outbox.WithConcurrency(classifyConcurrency),
 	)
 
+	// Initialize cleanup worker
+	cleanupWorker := cleanup.New(pool)
+
 	r := runner.New(
 		runner.WithProcess(f.NewFetcherRunner()),
 		runner.WithProcess(triageWorker.NewOutboxRunner()),
 		runner.WithProcess(normalizeWorker.NewOutboxRunner()),
 		runner.WithProcess(filterWorker.NewOutboxRunner()),
 		runner.WithProcess(classifyWorker.NewOutboxRunner()),
+		runner.WithProcess(cleanupWorker.NewCleanupRunner()),
 		runner.WithCloser(triageWorker.NewOutboxCloser()),
 		runner.WithCloser(normalizeWorker.NewOutboxCloser()),
 		runner.WithCloser(filterWorker.NewOutboxCloser()),
