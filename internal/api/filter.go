@@ -99,6 +99,7 @@ func toFilteredJob(row db.ListFilteredJobsRow) templates.DashboardJob {
 	}
 
 	j.Technologies = row.Technologies
+	j.HasEval = row.HasEval
 
 	return j
 }

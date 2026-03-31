@@ -1,11 +1,11 @@
 package templates
 
 templ ReviewModalContent(m ReviewModal) {
-	<div class="modal-backdrop" onclick="if(event.target===this)this.remove()">
+	<div class="modal-backdrop" onclick="if(event.target===this){this.remove();location.reload()}">
 		<div class="modal">
 			<div class="modal__header">
 				<h2>{ m.Title }</h2>
-				<button class="btn" onclick="this.closest('.modal-backdrop').remove()">X</button>
+				<button class="btn" onclick="this.closest('.modal-backdrop').remove();location.reload()">X</button>
 			</div>
 
 			<h3>Status</h3>

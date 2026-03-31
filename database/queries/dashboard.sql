@@ -22,7 +22,8 @@ SELECT
         array_agg(DISTINCT cjt.name)
         FILTER (WHERE cjt.id IS NOT NULL),
         '{}'
-    )::text[] AS technologies
+    )::text[] AS technologies,
+    EXISTS(SELECT 1 FROM eval_entry ee WHERE ee.raw_job_id = rj.id) AS has_eval
 FROM classified_job cj
 JOIN raw_job rj ON rj.id = cj.raw_job_id
 JOIN company c ON c.id = rj.company_id
@@ -68,7 +69,8 @@ SELECT
         array_agg(DISTINCT cjt.name)
         FILTER (WHERE cjt.id IS NOT NULL),
         '{}'
-    )::text[] AS technologies
+    )::text[] AS technologies,
+    EXISTS(SELECT 1 FROM eval_entry ee WHERE ee.raw_job_id = rj.id) AS has_eval
 FROM classified_job cj
 JOIN raw_job rj ON rj.id = cj.raw_job_id
 JOIN company c ON c.id = rj.company_id

@@ -35,7 +35,8 @@ SELECT
         array_agg(DISTINCT cjt.name)
         FILTER (WHERE cjt.id IS NOT NULL),
         '{}'
-    )::text[] AS technologies
+    )::text[] AS technologies,
+    EXISTS(SELECT 1 FROM eval_entry ee WHERE ee.raw_job_id = rj.id) AS has_eval
 FROM classified_job cj
 JOIN raw_job rj ON rj.id = cj.raw_job_id
 JOIN company c ON c.id = rj.company_id
@@ -71,6 +72,7 @@ type ListDashboardJobsRow struct {
 	CompanyFaviconUrl string
 	Locations         []string
 	Technologies      []string
+	HasEval           bool
 }
 
 func (q *Queries) ListDashboardJobs(ctx context.Context) ([]ListDashboardJobsRow, error) {
@@ -98,6 +100,7 @@ func (q *Queries) ListDashboardJobs(ctx context.Context) ([]ListDashboardJobsRow
 			&i.CompanyFaviconUrl,
 			&i.Locations,
 			&i.Technologies,
+			&i.HasEval,
 		); err != nil {
 			return nil, err
 		}
@@ -133,7 +136,8 @@ SELECT
         array_agg(DISTINCT cjt.name)
         FILTER (WHERE cjt.id IS NOT NULL),
         '{}'
-    )::text[] AS technologies
+    )::text[] AS technologies,
+    EXISTS(SELECT 1 FROM eval_entry ee WHERE ee.raw_job_id = rj.id) AS has_eval
 FROM classified_job cj
 JOIN raw_job rj ON rj.id = cj.raw_job_id
 JOIN company c ON c.id = rj.company_id
@@ -178,6 +182,7 @@ type ListFilteredJobsRow struct {
 	CompanyFaviconUrl string
 	Locations         []string
 	Technologies      []string
+	HasEval           bool
 }
 
 func (q *Queries) ListFilteredJobs(ctx context.Context, arg ListFilteredJobsParams) ([]ListFilteredJobsRow, error) {
@@ -205,6 +210,7 @@ func (q *Queries) ListFilteredJobs(ctx context.Context, arg ListFilteredJobsPara
 			&i.CompanyFaviconUrl,
 			&i.Locations,
 			&i.Technologies,
+			&i.HasEval,
 		); err != nil {
 			return nil, err
 		}

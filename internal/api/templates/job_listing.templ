@@ -7,6 +7,9 @@ templ JobListing(job DashboardJob) {
 		<div class="job-card__left">
 			<h3 class="job-card__title">
 				<a href={ templ.SafeURL(job.URL) } target="_blank" rel="noopener">{ job.Title }</a>
+				if job.HasEval {
+					<span class="eval-dot" title="eval saved"></span>
+				}
 			</h3>
 			<div class="job-card__meta">
 				if job.Level != "" {

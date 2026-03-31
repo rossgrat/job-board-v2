@@ -1,15 +1,17 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-    --bg: #1a1a1a;
-    --surface: #222;
-    --text: #ccc;
-    --text-muted: #777;
-    --accent: #7aa2f7;
-    --success: #9ece6a;
-    --danger: #f7768e;
-    --tabled: #e0af68;
-    --border: #333;
+    --bg: #282828;
+    --surface: #3c3836;
+    --text: #ebdbb2;
+    --text-muted: #a89984;
+    --accent: #d79921;
+    --tech: #a89984;
+    --new: #83a598;
+    --success: #b8bb26;
+    --danger: #fb4934;
+    --tabled: #fabd2f;
+    --border: #504945;
     --radius: 3px;
     --font: "Berkeley Mono", "SF Mono", "Menlo", "Consolas", monospace;
 }
@@ -62,7 +64,7 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
     font-size: 11px;
     border-radius: var(--radius);
 }
-.badge--new { color: var(--accent); }
+.badge--new { color: var(--new); }
 .badge--applied { color: var(--success); }
 .badge--tabled { color: var(--tabled); }
 .badge--strong_match { color: var(--accent); }
@@ -94,6 +96,8 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .job-card__title a { color: var(--text); }
 .job-card__title a:hover { color: var(--accent); }
 
+.eval-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--success); margin-left: 0.35rem; vertical-align: middle; }
+
 .job-card__company-row { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; font-size: 12px; }
 .favicon, .job-card__favicon { width: 12px; height: 12px; background: #fff; border-radius: 2px; padding: 1px; }
 .job-card__company { color: var(--text-muted); }
@@ -105,7 +109,7 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 
 /* Tags */
 .tag { color: var(--text-muted); font-size: 11px; }
-.tag--tech { color: var(--accent); }
+.tag--tech { color: var(--tech); }
 .tag--tech::before { content: "#"; }
 
 /* Filters */

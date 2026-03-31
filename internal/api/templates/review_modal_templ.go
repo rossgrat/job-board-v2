@@ -29,7 +29,7 @@ func ReviewModalContent(m ReviewModal) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"modal-backdrop\" onclick=\"if(event.target===this)this.remove()\"><div class=\"modal\"><div class=\"modal__header\"><h2>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"modal-backdrop\" onclick=\"if(event.target===this){this.remove();location.reload()}\"><div class=\"modal\"><div class=\"modal__header\"><h2>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -42,7 +42,7 @@ func ReviewModalContent(m ReviewModal) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</h2><button class=\"btn\" onclick=\"this.closest('.modal-backdrop').remove()\">X</button></div><h3>Status</h3><div class=\"modal__status-buttons\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</h2><button class=\"btn\" onclick=\"this.closest('.modal-backdrop').remove();location.reload()\">X</button></div><h3>Status</h3><div class=\"modal__status-buttons\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

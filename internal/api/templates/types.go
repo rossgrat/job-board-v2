@@ -16,6 +16,7 @@ type DashboardJob struct {
 	UserStatus     string
 	Locations      []Location
 	Technologies   []string
+	HasEval        bool
 }
 
 type Location struct {
