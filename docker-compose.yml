@@ -12,5 +12,14 @@ services:
       - pgdata:/var/lib/postgresql/data
     restart: unless-stopped
 
+  lgtm:
+    image: grafana/otel-lgtm:0.22.1
+    container_name: "job-board-lgtm"
+    ports:
+      - "3000:3000"
+      - "4317:4317"
+      - "4318:4318"
+    restart: unless-stopped
+
 volumes:
   pgdata:

@@ -14,8 +14,9 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rossgrat/job-board-v2/database/gen/db"
 	"github.com/rossgrat/job-board-v2/internal/model"
-	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/greenhouse"
+	"github.com/rossgrat/job-board-v2/internal/telemetry"
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
+	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/greenhouse"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
 )
 
@@ -98,9 +99,11 @@ func (f *Fetcher) execute(ctx context.Context) error {
 			jobs, err := fetcherClient.GetJobs(ctx, company.ID.Bytes, company.FetchConfig)
 			if err != nil {
 				slog.Error("failed to load jobs for company", slog.String("err", err.Error()))
+				telemetry.RecordFetchError(ctx, company.Name)
 				return
 			}
 
+			telemetry.RecordJobsFetched(ctx, company.Name, int64(len(jobs)))
 			slog.Info(fmt.Sprintf("loaded %d jobs for %s", len(jobs), company.Name))
 
 			// Save each job that does not already exist, start a triage outbox task
@@ -110,6 +113,9 @@ func (f *Fetcher) execute(ctx context.Context) error {
 						slog.String("err", err.Error()),
 						slog.String("jobID", job.SourceJobID),
 						slog.String("company", company.Name))
+					telemetry.RecordFetchError(ctx, company.Name)
+				} else {
+					telemetry.RecordJobSaved(ctx, company.Name)
 				}
 			}
 

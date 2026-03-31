@@ -26,8 +26,6 @@ templ JobListing(job DashboardJob) {
 				}
 				if job.UserStatus != "" {
 					<span class={ "badge", "badge--" + job.UserStatus }>{ job.UserStatus }</span>
-				} else {
-					<span class="badge badge--new">new</span>
 				}
 			</div>
 			if len(job.Technologies) > 0 {

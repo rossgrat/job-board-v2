@@ -3,7 +3,10 @@ package templates
 templ JobDetailPage(job JobDetail) {
 	@Layout(job.Title) {
 		<div class="detail">
-			<h1>Job Detail</h1>
+			<div class="detail__header">
+				<h1>Job Detail</h1>
+				<a href="javascript:history.back()" class="btn">Back</a>
+			</div>
 			<h2>
 				<a href={ templ.SafeURL(job.URL) } target="_blank" rel="noopener">{ job.Title }</a>
 			</h2>

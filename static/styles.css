@@ -148,6 +148,8 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .company-item__type { color: var(--text-muted); font-size: 11px; }
 
 /* Detail page */
+.detail__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+.detail__header h1 { margin-bottom: 0; }
 .detail h2 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 0.75rem; }
 .detail h2 a { color: var(--text); }
 .detail h2 a:hover { color: var(--accent); }
@@ -206,6 +208,38 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .btn-active { color: var(--accent); border-color: var(--accent); }
 .btn-primary { color: var(--accent); border-color: var(--accent); }
 .btn-primary:hover { background: var(--accent); color: var(--bg); }
+
+/* Login */
+.login-page { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+.login-container { width: 100%; max-width: 280px; text-align: center; }
+.login-container h1 { margin-bottom: 1rem; text-transform: none; color: var(--text); font-size: 16px; }
+.login-container input {
+    width: 100%;
+    padding: 6px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font: inherit;
+}
+.login-container input:focus { outline: none; border-color: var(--text-muted); }
+.password-field { position: relative; margin-bottom: 0.5rem; }
+.toggle-pw {
+    position: absolute;
+    right: 6px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font: inherit;
+    font-size: 11px;
+}
+.toggle-pw:hover { color: var(--text); }
+.login-container .btn { width: 100%; padding: 6px; }
+.alert { padding: 0.5rem; border-radius: var(--radius); margin-bottom: 0.75rem; font-size: 12px; }
+.alert-error { border: 1px solid var(--danger); color: var(--danger); }
 
 /* Responsive */
 @media (max-width: 600px) {

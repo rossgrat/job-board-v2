@@ -4,13 +4,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rossgrat/job-board-v2/internal/config"
 	"github.com/rossgrat/job-board-v2/internal/llm"
-	"github.com/rossgrat/job-board-v2/internal/worker/cleanup"
+	"github.com/rossgrat/job-board-v2/internal/telemetry"
 	"github.com/rossgrat/job-board-v2/internal/worker/classify"
+	"github.com/rossgrat/job-board-v2/internal/worker/cleanup"
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher"
 	"github.com/rossgrat/job-board-v2/internal/worker/filter"
@@ -22,19 +24,19 @@ import (
 )
 
 const (
-	llmRateInterval        = 4 * time.Second
-	llmRateBurst           = 1
-	triageConcurrency      = 1
-	normalizeConcurrency   = 1
-	filterConcurrency      = 1
-	classifyConcurrency    = 1
+	llmRateInterval      = 4 * time.Second
+	llmRateBurst         = 1
+	triageConcurrency    = 1
+	normalizeConcurrency = 1
+	filterConcurrency    = 1
+	classifyConcurrency  = 1
 )
 
 var (
-	ErrInitFetcher       = errors.New("failed to init fetcher")
-	ErrInitTriageLLM     = errors.New("failed to init triage llm")
-	ErrInitNormalizeLLM  = errors.New("failed to init normalize llm")
-	ErrInitClassifyLLM   = errors.New("failed to init classify llm")
+	ErrInitFetcher      = errors.New("failed to init fetcher")
+	ErrInitTriageLLM    = errors.New("failed to init triage llm")
+	ErrInitNormalizeLLM = errors.New("failed to init normalize llm")
+	ErrInitClassifyLLM  = errors.New("failed to init classify llm")
 )
 
 type Worker struct {
@@ -43,6 +45,14 @@ type Worker struct {
 
 func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Worker, error) {
 	const fn = "Worker::New"
+
+	// Initialize telemetry
+	tel, telErr := telemetry.Init(ctx, cfg.Telemetry.OTLPEndpoint)
+	if telErr != nil {
+		slog.Warn("telemetry init failed, continuing without", slog.String("err", telErr.Error()))
+	} else {
+		slog.SetDefault(tel.Logger)
+	}
 
 	// Initialize fetcher
 	f, err := fetcher.New(pool)
@@ -118,7 +128,7 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Worker, 
 	// Initialize cleanup worker
 	cleanupWorker := cleanup.New(pool)
 
-	r := runner.New(
+	runnerOpts := []runner.RunnerOption{
 		runner.WithProcess(f.NewFetcherRunner()),
 		runner.WithProcess(triageWorker.NewOutboxRunner()),
 		runner.WithProcess(normalizeWorker.NewOutboxRunner()),
@@ -129,7 +139,11 @@ func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) (*Worker, 
 		runner.WithCloser(normalizeWorker.NewOutboxCloser()),
 		runner.WithCloser(filterWorker.NewOutboxCloser()),
 		runner.WithCloser(classifyWorker.NewOutboxCloser()),
-	)
+	}
+	if tel != nil {
+		runnerOpts = append(runnerOpts, runner.WithCloser(tel.NewTelemetryCloser()))
+	}
+	r := runner.New(runnerOpts...)
 
 	return &Worker{r: r}, nil
 }

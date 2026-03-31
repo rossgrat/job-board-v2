@@ -9,6 +9,7 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rossgrat/job-board-v2/internal/config"
+	"github.com/rossgrat/job-board-v2/internal/telemetry"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
 )
 
@@ -20,7 +21,16 @@ type Server struct {
 	r          *runner.Runner
 }
 
-func New(pool *pgxpool.Pool, cfg *config.Config) *Server {
+func New(ctx context.Context, pool *pgxpool.Pool, cfg *config.Config) *Server {
+
+	// Init telemetry
+	tel, err := telemetry.Init(ctx, cfg.Telemetry.OTLPEndpoint)
+	if err != nil {
+		slog.Warn("telemetry init failed, continuing without", slog.String("err", err.Error()))
+	} else {
+		slog.SetDefault(tel.Logger)
+	}
+
 	s := &Server{
 		router: chi.NewRouter(),
 		pool:   pool,
@@ -36,9 +46,15 @@ func New(pool *pgxpool.Pool, cfg *config.Config) *Server {
 		Handler: s.router,
 	}
 
-	s.r = runner.New(
+	runnerOpts := []runner.RunnerOption{
 		runner.WithProcess(s.serverRunner()),
-	)
+	}
+
+	if tel != nil {
+		runnerOpts = append(runnerOpts, runner.WithCloser(tel.NewTelemetryCloser()))
+	}
+
+	s.r = runner.New(runnerOpts...)
 
 	return s
 }

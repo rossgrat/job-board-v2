@@ -1,0 +1,30 @@
+package templates
+
+templ LoginPage(errMsg string) {
+	<!DOCTYPE html>
+	<html lang="en">
+	<head>
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<title>Login</title>
+		<link rel="stylesheet" href="/static/styles.css"/>
+	</head>
+	<body>
+		<div class="login-page">
+			<div class="login-container">
+				<h1>Job Board</h1>
+				if errMsg != "" {
+					<div class="alert alert-error">{ errMsg }</div>
+				}
+				<form method="post" action="/login">
+					<div class="password-field">
+						<input id="pw" type="password" name="password" placeholder="Password" autofocus/>
+						<button type="button" class="toggle-pw" onclick="var p=document.getElementById('pw');p.type=p.type==='password'?'text':'password';this.textContent=p.type==='password'?'show':'hide'">show</button>
+					</div>
+					<button type="submit" class="btn btn-primary">Login</button>
+				</form>
+			</div>
+		</div>
+	</body>
+	</html>
+}

@@ -41,7 +41,7 @@ func startAPI(cmd *cobra.Command, args []string) error {
 
 	slog.Info("connected to postgres", slog.String("host", cfg.Postgres.Host))
 
-	server := api.New(dbPool, cfg)
+	server := api.New(ctx, dbPool, cfg)
 	server.Run()
 
 	return nil

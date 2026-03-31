@@ -11,6 +11,8 @@ type Config struct {
 	Postgres  PostgresConfig
 	Anthropic AnthropicConfig
 	Server    ServerConfig
+	Telemetry TelemetryConfig
+	Auth      AuthConfig
 }
 
 func Load() (*Config, error) {
@@ -28,6 +30,8 @@ func Load() (*Config, error) {
 		Postgres:  loadPostgresConfig(),
 		Anthropic: loadAnthropicConfig(),
 		Server:    loadServerConfig(),
+		Telemetry: loadTelemetryConfig(),
+		Auth:      loadAuthConfig(),
 	}
 
 	return cfg, nil

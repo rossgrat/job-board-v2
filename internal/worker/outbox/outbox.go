@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rossgrat/job-board-v2/database/gen/db"
+	"github.com/rossgrat/job-board-v2/internal/telemetry"
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
 )
@@ -114,7 +115,11 @@ func (w *OutboxWorker) processOne(ctx context.Context) error {
 		slog.String("task_name", w.taskName),
 		slog.String("task_id", taskID))
 
+	start := time.Now()
 	result, err := w.handler.Handle(ctx, task)
+	durationMs := float64(time.Since(start).Milliseconds())
+	telemetry.RecordTaskDuration(ctx, w.taskName, durationMs)
+
 	if err != nil {
 		w.handleRetry(ctx, task, err)
 		return nil
@@ -124,6 +129,7 @@ func (w *OutboxWorker) processOne(ctx context.Context) error {
 		return fmt.Errorf("%s:%w:%w", fn, ErrCompleteTask, err)
 	}
 
+	telemetry.RecordTaskCompleted(ctx, w.taskName, "done")
 	return nil
 }
 
@@ -205,6 +211,7 @@ func (w *OutboxWorker) handleRetry(ctx context.Context, task db.OutboxTask, hand
 
 	if newRetryCount >= task.MaxRetries {
 		status = constants.TaskFailed
+		telemetry.RecordTaskCompleted(ctx, w.taskName, "failed")
 		slog.Error("outbox task max retries exceeded",
 			slog.String("task_name", w.taskName),
 			slog.String("task_id", taskID),
@@ -212,6 +219,7 @@ func (w *OutboxWorker) handleRetry(ctx context.Context, task db.OutboxTask, hand
 	} else {
 		backoff := w.baseBackoff * (1 << (newRetryCount - 1))
 		notBefore = pgtype.Timestamptz{Time: time.Now().Add(backoff), Valid: true}
+		telemetry.RecordTaskCompleted(ctx, w.taskName, "retried")
 		slog.Warn("outbox task retry",
 			slog.String("task_name", w.taskName),
 			slog.String("task_id", taskID),
