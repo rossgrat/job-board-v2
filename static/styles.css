@@ -83,13 +83,14 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .job-card__left { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
 .job-card__right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.25rem; flex-shrink: 0; max-width: 250px; text-align: right; }
 .job-card__date { font-size: 11px; color: var(--text-muted); }
+.job-card__buttons { display: flex; gap: 0.25rem; }
 
 .job-card__title { font-weight: 600; }
 .job-card__title a { color: var(--text); }
 .job-card__title a:hover { color: var(--accent); }
 
 .job-card__company-row { display: flex; align-items: center; justify-content: flex-end; gap: 0.25rem; font-size: 12px; }
-.job-card__favicon { width: 12px; height: 12px; background: rgba(255,255,255,0.85); border-radius: 2px; padding: 1px; }
+.favicon, .job-card__favicon { width: 12px; height: 12px; background: #fff; border-radius: 2px; padding: 1px; }
 .job-card__company { color: var(--text-muted); }
 .job-card__locations { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.25rem; font-size: 11px; color: var(--text-muted); }
 
@@ -101,6 +102,19 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .tag { color: var(--text-muted); font-size: 11px; }
 .tag--tech { color: var(--accent); }
 .tag--tech::before { content: "#"; }
+
+/* Detail page */
+.detail h2 { font-size: 16px; font-weight: 700; color: var(--text); margin-bottom: 0.75rem; }
+.detail h2 a { color: var(--text); }
+.detail h2 a:hover { color: var(--accent); }
+.detail h3 { font-size: 12px; font-weight: 700; color: var(--text-muted); margin: 1rem 0 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.detail dl { display: grid; grid-template-columns: auto 1fr; gap: 0.15rem 1rem; font-size: 12px; }
+.detail dt { color: var(--text-muted); }
+.detail dd { color: var(--text); }
+.detail pre { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 0.5rem; font-size: 11px; overflow-x: auto; white-space: pre-wrap; word-break: break-all; }
+.detail ul { list-style: none; font-size: 12px; }
+.detail ul li { color: var(--text-muted); padding: 0.1rem 0; }
+.detail .tags { display: flex; flex-wrap: wrap; gap: 0.25rem; }
 
 /* Responsive */
 @media (max-width: 600px) {

@@ -151,6 +151,30 @@ func (q *Queries) GetClassifiedJobLocations(ctx context.Context, classifiedJobID
 	return items, nil
 }
 
+const getClassifiedJobTechnologies = `-- name: GetClassifiedJobTechnologies :many
+SELECT id, classified_job_id, name FROM classified_job_technology WHERE classified_job_id = $1
+`
+
+func (q *Queries) GetClassifiedJobTechnologies(ctx context.Context, classifiedJobID pgtype.UUID) ([]ClassifiedJobTechnology, error) {
+	rows, err := q.db.Query(ctx, getClassifiedJobTechnologies, classifiedJobID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ClassifiedJobTechnology
+	for rows.Next() {
+		var i ClassifiedJobTechnology
+		if err := rows.Scan(&i.ID, &i.ClassifiedJobID, &i.Name); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const listClassifiedJobIDsByStatus = `-- name: ListClassifiedJobIDsByStatus :many
 SELECT id FROM classified_job WHERE status = $1 AND is_current = true
 `

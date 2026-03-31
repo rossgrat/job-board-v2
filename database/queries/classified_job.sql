@@ -34,6 +34,9 @@ VALUES ($1, $2, $3);
 -- name: GetClassifiedJobLocations :many
 SELECT * FROM classified_job_location WHERE classified_job_id = $1;
 
+-- name: GetClassifiedJobTechnologies :many
+SELECT * FROM classified_job_technology WHERE classified_job_id = $1;
+
 -- name: UpdateClassifiedJobClassification :exec
 UPDATE classified_job
 SET category = $2, relevance = $3, reasoning = $4, classified_at = now(),

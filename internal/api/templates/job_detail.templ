@@ -1,0 +1,99 @@
+package templates
+
+templ JobDetailPage(job JobDetail) {
+	@Layout(job.Title) {
+		<div class="detail">
+			<h1>Job Detail</h1>
+			<h2>
+				<a href={ templ.SafeURL(job.URL) } target="_blank" rel="noopener">{ job.Title }</a>
+			</h2>
+
+			<h3>Classification</h3>
+			<dl>
+				<dt>Status</dt>
+				<dd>{ job.Status }</dd>
+				<dt>Category</dt>
+				<dd>{ job.Category }</dd>
+				<dt>Relevance</dt>
+				<dd>{ job.Relevance }</dd>
+				<dt>Level</dt>
+				<dd>{ job.Level }</dd>
+				if job.HasSalary {
+					<dt>Salary</dt>
+					<dd>{ formatSalary(job.SalaryMin, job.SalaryMax) }</dd>
+				}
+				<dt>Prompt Version</dt>
+				<dd>{ job.ClassificationPromptVersion }</dd>
+				<dt>Is Current</dt>
+				<dd>{ formatBool(job.IsCurrent) }</dd>
+			</dl>
+
+			if job.Reasoning != "" {
+				<h3>Reasoning</h3>
+				<pre>{ job.Reasoning }</pre>
+			}
+
+			if len(job.Locations) > 0 {
+				<h3>Locations</h3>
+				<ul>
+					for _, loc := range job.Locations {
+						<li>
+							if loc.City != "" {
+								{ loc.City }, { loc.Country } ({ loc.Setting })
+							} else {
+								{ loc.Country } ({ loc.Setting })
+							}
+						</li>
+					}
+				</ul>
+			}
+
+			if len(job.Technologies) > 0 {
+				<h3>Technologies</h3>
+				<div class="tags">
+					for _, tech := range job.Technologies {
+						<span class="tag tag--tech">{ tech }</span>
+					}
+				</div>
+			}
+
+			<h3>Raw Job</h3>
+			<dl>
+				<dt>Raw Job ID</dt>
+				<dd>{ job.RawJobID }</dd>
+				<dt>Source Job ID</dt>
+				<dd>{ job.SourceJobID }</dd>
+				<dt>Company</dt>
+				<dd>
+					if job.CompanyFavicon != "" {
+						<img class="favicon" src={ job.CompanyFavicon } alt="" width="12" height="12"/>
+					}
+					{ job.CompanyName }
+				</dd>
+				<dt>User Status</dt>
+				<dd>{ job.UserStatus }</dd>
+				<dt>URL</dt>
+				<dd><a href={ templ.SafeURL(job.URL) } target="_blank" rel="noopener">{ job.URL }</a></dd>
+			</dl>
+
+			<h3>Timestamps</h3>
+			<dl>
+				<dt>Discovered</dt>
+				<dd>{ job.DiscoveredAt }</dd>
+				<dt>Classified Job Created</dt>
+				<dd>{ job.CreatedAt }</dd>
+				<dt>Normalized</dt>
+				<dd>{ job.NormalizedAt }</dd>
+				<dt>Classified</dt>
+				<dd>{ job.ClassifiedAt }</dd>
+			</dl>
+
+			if job.CleanData != "" {
+				<h3>Clean Data</h3>
+				<pre>{ job.CleanData }</pre>
+			}
+
+
+		</div>
+	}
+}

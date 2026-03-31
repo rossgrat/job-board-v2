@@ -54,7 +54,10 @@ templ JobListing(job DashboardJob) {
 				</div>
 			}
 			<span class="job-card__date">{ job.DiscoveredAt }</span>
-			<button class="btn" disabled>Review</button>
+			<div class="job-card__buttons">
+				<a href={ templ.SafeURL("/jobs/" + job.ID) } class="btn">Detail</a>
+				<button class="btn" disabled>Review</button>
+			</div>
 		</div>
 	</div>
 }

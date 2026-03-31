@@ -78,6 +78,25 @@ func (q *Queries) GetActiveCompanies(ctx context.Context) ([]Company, error) {
 	return items, nil
 }
 
+const getCompanyByID = `-- name: GetCompanyByID :one
+SELECT id, name, fetch_type, fetch_config, favicon_url, is_active, created_at FROM company WHERE id = $1
+`
+
+func (q *Queries) GetCompanyByID(ctx context.Context, id pgtype.UUID) (Company, error) {
+	row := q.db.QueryRow(ctx, getCompanyByID, id)
+	var i Company
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.FetchType,
+		&i.FetchConfig,
+		&i.FaviconUrl,
+		&i.IsActive,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const getCompanyByName = `-- name: GetCompanyByName :one
 SELECT id, name, fetch_type, fetch_config, favicon_url, is_active, created_at FROM company WHERE name = $1
 `
