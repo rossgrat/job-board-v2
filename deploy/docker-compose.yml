@@ -4,6 +4,8 @@ services:
     container_name: job-board-api
     command: ["api"]
     env_file: .env
+    environment:
+      - OTEL_SERVICE_NAME=job-board-api
     networks:
       - caddy-network
       - job-board-internal
@@ -19,6 +21,8 @@ services:
     container_name: job-board-worker
     command: ["worker"]
     env_file: .env
+    environment:
+      - OTEL_SERVICE_NAME=job-board-worker
     networks:
       - caddy-network
       - job-board-internal
