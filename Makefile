@@ -57,7 +57,7 @@ migrate-apply:
 #
 IMAGE = ghcr.io/rossgrat/job-board-v2
 SERVER = potatoserver
-REMOTE_DIR = ~/services/job-board
+REMOTE_DIR = ~/services/job-board-v2
 
 deploy:
 	scp deploy/docker-compose.yml $(SERVER):$(REMOTE_DIR)/docker-compose.yml
