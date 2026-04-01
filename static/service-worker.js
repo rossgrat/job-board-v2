@@ -1,4 +1,4 @@
-const CACHE = "job-board-v2";
+const CACHE = "job-board-v3";
 const PRECACHE = ["/static/styles.css"];
 
 self.addEventListener("install", (e) => {
@@ -17,11 +17,11 @@ self.addEventListener("activate", (e) => {
 
 self.addEventListener("fetch", (e) => {
   if (e.request.method !== "GET") return;
-  if (!e.request.url.startsWith(self.location.origin)) return;
+  if (!e.request.url.startsWith(self.location.origin + "/static/")) return;
   e.respondWith(
     fetch(e.request)
       .then((res) => {
-        if (res.ok && e.request.url.startsWith(self.location.origin + "/static/")) {
+        if (res.ok) {
           const clone = res.clone();
           caches.open(CACHE).then((c) => c.put(e.request, clone));
         }
