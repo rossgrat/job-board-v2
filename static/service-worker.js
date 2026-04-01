@@ -1,4 +1,4 @@
-const CACHE = "job-board-v1";
+const CACHE = "job-board-v2";
 const PRECACHE = ["/static/styles.css"];
 
 self.addEventListener("install", (e) => {
