@@ -1,4 +1,4 @@
-h1:bcmTF6D1edT52877YdHZsNybkQ1HsSmoXtbvBqrVsHQ=
+h1:DevmJ1XNo+aBTsEEN4sSL2RmImd7ZKDi9F/j/C2aRuM=
 20260326170203_add-companies.sql h1:6ATSYmGaeYkN56wWOmxyHD7iCPC22QLARt3GnMHMxvs=
 20260327203215_seed_stripe.sql h1:hn+lj/uIC3ToaelOjJ4LNGyenxSQvJbsB39nsTrMaiY=
 20260327211028_add-pipeline-tables.sql h1:6ob/GuBdbhVPbk4vH07xHdXaB52/alFJe68lSn/66Ko=
@@ -8,3 +8,4 @@ h1:bcmTF6D1edT52877YdHZsNybkQ1HsSmoXtbvBqrVsHQ=
 20260330200554_add-filter-tables.sql h1:8gP8IrB2s9nFg42uUf12J2ydok0FFTARopfw72p3aco=
 20260330200607_seed_filters.sql h1:R5NBGEC9PQ6oir80eUZxmkQVLe6poHr1UbPxV1FmDZ0=
 20260331224229_add-eval-entry.sql h1:MNiaLfJYQMKO/FkN1xmJDGQ29lwhooSvkWZxV95O1CU=
+20260401152414_add_oxide.sql h1:FF4cwdogbwPUrkrb0ElPgn7eKbv0ZAkqfRmeHv4jWAc=
