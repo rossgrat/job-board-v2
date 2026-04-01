@@ -33,7 +33,7 @@ var (
 )
 
 type fetcherClient interface {
-	GetJobs(context.Context, uuid.UUID, []byte) ([]model.RawJob, error)
+	GetJobs(context.Context, uuid.UUID, []byte, chan<- model.RawJob) error
 }
 
 type Fetcher struct {
@@ -99,19 +99,16 @@ func (f *Fetcher) execute(ctx context.Context) error {
 	for _, company := range companies {
 		fetcherClient := f.clientsMap[JobBoardName(company.FetchType)]
 		wg.Go(func() {
-			// Load all jobs for company
-			jobs, err := fetcherClient.GetJobs(ctx, company.ID.Bytes, company.FetchConfig)
-			if err != nil {
-				slog.Error("failed to load jobs for company", slog.String("err", err.Error()))
-				telemetry.RecordFetchError(ctx, company.Name)
-				return
-			}
+			jobs := make(chan model.RawJob)
+			errCh := make(chan error, 1)
+			go func() {
+				defer close(jobs)
+				errCh <- fetcherClient.GetJobs(ctx, company.ID.Bytes, company.FetchConfig, jobs)
+			}()
 
-			telemetry.RecordJobsFetched(ctx, company.Name, int64(len(jobs)))
-			slog.Info(fmt.Sprintf("loaded %d jobs for %s", len(jobs), company.Name))
-
-			// Save each job that does not already exist, start a triage outbox task
-			for _, job := range jobs {
+			var count int64
+			for job := range jobs {
+				count++
 				if err := f.SaveJob(ctx, job); err != nil {
 					slog.Error("failed to save job",
 						slog.String("err", err.Error()),
@@ -123,6 +120,15 @@ func (f *Fetcher) execute(ctx context.Context) error {
 				}
 			}
 
+			if err := <-errCh; err != nil {
+				slog.Error("failed to load jobs for company",
+					slog.String("err", err.Error()),
+					slog.String("company", company.Name))
+				telemetry.RecordFetchError(ctx, company.Name)
+			}
+
+			telemetry.RecordJobsFetched(ctx, company.Name, count)
+			slog.Info(fmt.Sprintf("loaded %d jobs for %s", count, company.Name))
 			slog.Info(fmt.Sprintf("saved %s jobs", company.Name))
 		})
 	}

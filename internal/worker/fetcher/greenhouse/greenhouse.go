@@ -3,12 +3,21 @@ package greenhouse
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/rossgrat/job-board-v2/internal/model"
+)
+
+var (
+	ErrUnmarshalConfig  = errors.New("failed to unmarshal config")
+	ErrCreateRequest    = errors.New("failed to create request")
+	ErrFetchJobs        = errors.New("failed to fetch jobs")
+	ErrUnexpectedStatus = errors.New("unexpected status code")
+	ErrDecodeResponse   = errors.New("failed to decode response")
 )
 
 type GreenhouseCompanyConfig struct {
@@ -29,39 +38,39 @@ func New() *Client {
 	}
 }
 
-func (g *Client) GetJobs(ctx context.Context, companyID uuid.UUID, config []byte) ([]model.RawJob, error) {
+func (g *Client) GetJobs(ctx context.Context, companyID uuid.UUID, config []byte, out chan<- model.RawJob) error {
+	const fn = "Greenhouse::GetJobs"
+
 	var cfg GreenhouseCompanyConfig
-	err := json.Unmarshal(config, &cfg)
-	if err != nil {
-		return nil, fmt.Errorf("error unmarshalling greenhouse config: %w", err)
+	if err := json.Unmarshal(config, &cfg); err != nil {
+		return fmt.Errorf("%s:%w:%w", fn, ErrUnmarshalConfig, err)
 	}
 
 	url := fmt.Sprintf("%s/%s/jobs?content=true", g.baseURL, cfg.BoardSlug)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
-		return nil, fmt.Errorf("creating request: %w", err)
+		return fmt.Errorf("%s:%w:%w", fn, ErrCreateRequest, err)
 	}
 
 	resp, err := g.httpClient.Do(req)
 	if err != nil {
-		return nil, fmt.Errorf("fetching jobs: %w", err)
+		return fmt.Errorf("%s:%w:%w", fn, ErrFetchJobs, err)
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("unexpected status code: %d", resp.StatusCode)
+		return fmt.Errorf("%s:%w:%w", fn, ErrUnexpectedStatus, fmt.Errorf("%d", resp.StatusCode))
 	}
 
 	var result GreenhouseJobsResponse
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return nil, fmt.Errorf("decoding response: %w", err)
+		return fmt.Errorf("%s:%w:%w", fn, ErrDecodeResponse, err)
 	}
 
-	var rawJobs []model.RawJob
 	for _, gj := range result.Jobs {
-		rawJobs = append(rawJobs, gj.ToModel(companyID))
+		out <- gj.ToModel(companyID)
 	}
 
-	return rawJobs, nil
+	return nil
 }
