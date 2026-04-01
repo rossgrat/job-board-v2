@@ -67,7 +67,7 @@ ATLAS_IMAGE = arigaio/atlas:1.1.6-community
 DOCKER_NETWORK = job-board-v2_job-board-internal
 
 deploy-migrate:
-	scp -r database/migrations $(SERVER):$(REMOTE_DIR)/migrations
+	rsync -av --delete database/migrations/ $(SERVER):$(REMOTE_DIR)/migrations/
 	ssh $(SERVER) 'cd $(REMOTE_DIR) && source .env && \
 		docker run --rm \
 			--network $(DOCKER_NETWORK) \
