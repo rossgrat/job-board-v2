@@ -135,7 +135,7 @@ func (c *Client) consumeDetails(ctx context.Context, baseAPI string, companyID u
 }
 
 func (c *Client) fetchDetail(ctx context.Context, baseAPI string, externalPath string) (*WorkdayJobDetail, error) {
-	url := fmt.Sprintf("%s/job%s", baseAPI, externalPath)
+	url := fmt.Sprintf("%s%s", baseAPI, externalPath)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
