@@ -53,6 +53,23 @@ migrate-apply:
 
 
 #
+# Deploy
+#
+IMAGE = ghcr.io/rossgrat/job-board-v2
+SERVER = potatoserver
+REMOTE_DIR = ~/services/job-board
+
+deploy:
+	scp deploy/docker-compose.yml $(SERVER):$(REMOTE_DIR)/docker-compose.yml
+	ssh $(SERVER) "cd $(REMOTE_DIR) && docker pull $(IMAGE):latest && docker compose up -d"
+
+deploy-stop:
+	ssh $(SERVER) "cd $(REMOTE_DIR) && docker compose down"
+
+deploy-logs:
+	ssh $(SERVER) "cd $(REMOTE_DIR) && docker compose logs -f"
+
+#
 # Develop
 #
 dev-db-connect:

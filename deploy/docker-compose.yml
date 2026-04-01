@@ -1,0 +1,53 @@
+services:
+  api:
+    image: ghcr.io/rossgrat/job-board-v2:latest
+    container_name: job-board-api
+    command: ["./job-board", "api"]
+    env_file: .env
+    networks:
+      - caddy-network
+      - job-board-internal
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+
+  worker:
+    image: ghcr.io/rossgrat/job-board-v2:latest
+    container_name: job-board-worker
+    command: ["./job-board", "worker"]
+    env_file: .env
+    networks:
+      - caddy-network
+      - job-board-internal
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+
+  postgres:
+    image: postgres:18-alpine
+    container_name: job-board-postgres
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - job-board-internal
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+
+networks:
+  caddy-network:
+    external: true
+  job-board-internal:
+
+volumes:
+  pgdata:
