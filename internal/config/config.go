@@ -22,8 +22,7 @@ func Load() (*Config, error) {
 
 	// .env file is optional — environment variables take precedence
 	if err := viper.ReadInConfig(); err != nil {
-		slog.Error("Failed to read config")
-		os.Exit(1)
+		slog.Info("no .env file found, using environment variables")
 	}
 
 	cfg := &Config{

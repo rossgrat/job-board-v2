@@ -2,7 +2,7 @@ services:
   api:
     image: ghcr.io/rossgrat/job-board-v2:latest
     container_name: job-board-api
-    command: ["./job-board", "api"]
+    command: ["api"]
     env_file: .env
     networks:
       - caddy-network
@@ -17,7 +17,7 @@ services:
   worker:
     image: ghcr.io/rossgrat/job-board-v2:latest
     container_name: job-board-worker
-    command: ["./job-board", "worker"]
+    command: ["worker"]
     env_file: .env
     networks:
       - caddy-network

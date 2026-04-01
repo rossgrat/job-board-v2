@@ -1,4 +1,4 @@
-.PHONY: build run-worker docker-clean docker-up docker-down generate migrate-diff migrate-apply
+.PHONY: build run-worker docker-clean docker-up docker-down generate migrate-diff migrate-apply deploy deploy-stop deploy-logs
 
 include .env
 export
@@ -62,6 +62,20 @@ REMOTE_DIR = ~/services/job-board-v2
 deploy:
 	scp deploy/docker-compose.yml $(SERVER):$(REMOTE_DIR)/docker-compose.yml
 	ssh $(SERVER) "cd $(REMOTE_DIR) && docker pull $(IMAGE):latest && docker compose up -d"
+
+ATLAS_IMAGE = arigaio/atlas:1.1.6-community
+DOCKER_NETWORK = job-board-v2_job-board-internal
+
+deploy-migrate:
+	scp -r database/migrations $(SERVER):$(REMOTE_DIR)/migrations
+	ssh $(SERVER) 'cd $(REMOTE_DIR) && source .env && \
+		docker run --rm \
+			--network $(DOCKER_NETWORK) \
+			-v ./migrations:/migrations \
+			$(ATLAS_IMAGE) \
+			migrate apply \
+				--dir file://migrations \
+				--url postgres://$$POSTGRES_USER:$$POSTGRES_PASSWORD@postgres:5432/$$POSTGRES_DB?sslmode=disable'
 
 deploy-stop:
 	ssh $(SERVER) "cd $(REMOTE_DIR) && docker compose down"
