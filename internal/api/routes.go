@@ -17,6 +17,7 @@ func (s *Server) routes() {
 
 	// Serve service worker from root so it can control all pages
 	s.router.Get("/service-worker.js", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache")
 		http.ServeFile(w, r, "static/service-worker.js")
 	})
 
