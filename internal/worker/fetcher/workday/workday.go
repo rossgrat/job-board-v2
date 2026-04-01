@@ -58,6 +58,7 @@ func (c *Client) produceSummaries(ctx context.Context, baseAPI string, out chan<
 	const pageSize = 20
 	url := baseAPI + "/jobs"
 
+	total := 0
 	for offset := 0; ; offset += pageSize {
 		body, _ := json.Marshal(WorkdaySearchRequest{
 			Limit:         pageSize,
@@ -86,11 +87,15 @@ func (c *Client) produceSummaries(ctx context.Context, baseAPI string, out chan<
 			return
 		}
 
+		if offset == 0 {
+			total = page.Total
+		}
+
 		for _, s := range page.JobPostings {
 			out <- s
 		}
 
-		if offset+pageSize >= page.Total {
+		if offset+pageSize >= total {
 			break
 		}
 	}
