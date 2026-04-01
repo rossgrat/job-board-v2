@@ -103,7 +103,7 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .job-card__company { color: var(--text-muted); }
 .job-card__locations { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 0.25rem; font-size: 11px; color: var(--text-muted); }
 
-.job-card__meta { display: flex; align-items: baseline; gap: 0.75rem; font-size: 11px; color: var(--text-muted); }
+.job-card__meta { display: flex; align-items: baseline; gap: 0.75rem; font-size: 11px; color: var(--text-muted); flex-wrap: wrap; }
 
 .job-card__tech { display: flex; flex-wrap: wrap; gap: 0.25rem; }
 
