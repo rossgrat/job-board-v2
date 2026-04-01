@@ -22,7 +22,12 @@ type RawJob struct {
 }
 
 func CleanContent(rawData []byte) string {
-	plain := htmlTagRegex.ReplaceAllString(string(rawData), " ")
+	// json.Marshal escapes <, >, & to unicode sequences; undo that so the
+	// HTML tag regex can match them.
+	s := strings.ReplaceAll(string(rawData), `\u003c`, "<")
+	s = strings.ReplaceAll(s, `\u003e`, ">")
+	s = strings.ReplaceAll(s, `\u0026`, "&")
+	plain := htmlTagRegex.ReplaceAllString(s, " ")
 	plain = htmlEntityRegex.ReplaceAllString(plain, " ")
 	plain = whitespaceRegex.ReplaceAllString(plain, " ")
 	plain = strings.TrimSpace(plain)

@@ -15,6 +15,11 @@ func (s *Server) routes() {
 	fs := http.FileServer(http.Dir("static"))
 	s.router.Handle("/static/*", http.StripPrefix("/static/", fs))
 
+	// Serve service worker from root so it can control all pages
+	s.router.Get("/service-worker.js", func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "static/service-worker.js")
+	})
+
 	// Authenticated routes
 	s.router.Group(func(r chi.Router) {
 		r.Use(authMiddleware(s.cfg.Auth.Password))
