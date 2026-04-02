@@ -30,6 +30,7 @@ var (
 	ErrCreateClassifiedJob   = errors.New("failed to create classified job")
 	ErrCreateOutboxTask      = errors.New("failed to create outbox task")
 	ErrCommitTx              = errors.New("failed to commit transaction")
+	ErrDuplicateJob          = errors.New("duplicate job")
 )
 
 type fetcherClient interface {
@@ -138,14 +139,16 @@ func (f *Fetcher) saveJobs(ctx context.Context, companyName string, jobs <-chan 
 	for job := range jobs {
 		count++
 		seenSourceJobIDs = append(seenSourceJobIDs, job.SourceJobID)
-		if err := f.SaveJob(ctx, job); err != nil {
+		if err := f.SaveJob(ctx, job); errors.Is(err, ErrDuplicateJob) {
+			// no-op, job already exists
+		} else if err != nil {
 			slog.Error("failed to save job",
 				slog.String("err", err.Error()),
 				slog.String("jobID", job.SourceJobID),
 				slog.String("company", companyName))
 			telemetry.RecordFetchError(ctx, companyName)
 		} else {
-			telemetry.RecordJobSaved(ctx, companyName)
+			telemetry.RecordJobCreated(ctx, companyName)
 		}
 	}
 	return count, seenSourceJobIDs
@@ -161,6 +164,7 @@ func (f *Fetcher) softDeleteMissing(ctx context.Context, queries *db.Queries, co
 			slog.String("err", err.Error()),
 			slog.String("company", company.Name))
 	} else if deleted > 0 {
+		telemetry.RecordJobsSoftDeleted(ctx, company.Name, deleted)
 		slog.Info(fmt.Sprintf("soft-deleted %d jobs for %s", deleted, company.Name))
 	}
 }
@@ -187,7 +191,7 @@ func (f *Fetcher) SaveJob(ctx context.Context, rawJob model.RawJob) error {
 	})
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return nil // duplicate job, skip
+			return ErrDuplicateJob
 		}
 		return fmt.Errorf("%s:%w:%w", fn, ErrCreateRawJob, err)
 	}

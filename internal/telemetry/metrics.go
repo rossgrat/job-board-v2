@@ -11,9 +11,10 @@ import (
 var (
 	meter = otel.Meter("job-board")
 
-	fetcherJobsFetched metric.Int64Counter
-	fetcherJobsSaved   metric.Int64Counter
-	fetcherErrors      metric.Int64Counter
+	fetcherJobsFetched    metric.Int64Counter
+	fetcherJobsCreated    metric.Int64Counter
+	fetcherJobsSoftDeleted metric.Int64Counter
+	fetcherErrors         metric.Int64Counter
 
 	outboxTasksCompleted metric.Int64Counter
 	outboxTaskDuration   metric.Float64Histogram
@@ -21,7 +22,8 @@ var (
 
 func init() {
 	fetcherJobsFetched, _ = meter.Int64Counter("fetcher.jobs_fetched")
-	fetcherJobsSaved, _ = meter.Int64Counter("fetcher.jobs_saved")
+	fetcherJobsCreated, _ = meter.Int64Counter("fetcher.jobs_created")
+	fetcherJobsSoftDeleted, _ = meter.Int64Counter("fetcher.jobs_soft_deleted")
 	fetcherErrors, _ = meter.Int64Counter("fetcher.errors")
 
 	outboxTasksCompleted, _ = meter.Int64Counter("outbox.tasks_completed")
@@ -32,8 +34,12 @@ func RecordJobsFetched(ctx context.Context, company string, count int64) {
 	fetcherJobsFetched.Add(ctx, count, metric.WithAttributes(attribute.String("company", company)))
 }
 
-func RecordJobSaved(ctx context.Context, company string) {
-	fetcherJobsSaved.Add(ctx, 1, metric.WithAttributes(attribute.String("company", company)))
+func RecordJobCreated(ctx context.Context, company string) {
+	fetcherJobsCreated.Add(ctx, 1, metric.WithAttributes(attribute.String("company", company)))
+}
+
+func RecordJobsSoftDeleted(ctx context.Context, company string, count int64) {
+	fetcherJobsSoftDeleted.Add(ctx, count, metric.WithAttributes(attribute.String("company", company)))
 }
 
 func RecordFetchError(ctx context.Context, company string) {
