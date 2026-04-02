@@ -59,7 +59,7 @@ IMAGE = ghcr.io/rossgrat/job-board-v2
 SERVER = potatoserver
 REMOTE_DIR = ~/services/job-board-v2
 
-deploy:
+deploy: deploy-migrate
 	scp deploy/docker-compose.yml $(SERVER):$(REMOTE_DIR)/docker-compose.yml
 	ssh $(SERVER) "cd $(REMOTE_DIR) && docker pull $(IMAGE):latest && docker compose up -d"
 
