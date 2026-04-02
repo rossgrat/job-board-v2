@@ -92,4 +92,5 @@ type RawJob struct {
 	CleanData    string
 	DiscoveredAt pgtype.Timestamptz
 	UserStatus   pgtype.Text
+	DeletedAt    pgtype.Timestamptz
 }

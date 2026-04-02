@@ -17,6 +17,7 @@ CREATE TABLE raw_job (
     clean_data TEXT NOT NULL,
     discovered_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     user_status TEXT,
+    deleted_at TIMESTAMPTZ,
     UNIQUE (company_id, source_job_id)
 );
 

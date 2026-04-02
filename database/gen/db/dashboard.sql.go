@@ -43,6 +43,7 @@ JOIN company c ON c.id = rj.company_id
 LEFT JOIN classified_job_location cjl ON cjl.classified_job_id = cj.id
 LEFT JOIN classified_job_technology cjt ON cjt.classified_job_id = cj.id
 WHERE cj.is_current = true
+  AND rj.deleted_at IS NULL
   AND cj.status = 'accepted'
   AND cj.relevance IN ('strong_match', 'good_match')
   AND (rj.user_status IS NULL OR rj.user_status != 'rejected')
@@ -144,6 +145,7 @@ JOIN company c ON c.id = rj.company_id
 LEFT JOIN classified_job_location cjl ON cjl.classified_job_id = cj.id
 LEFT JOIN classified_job_technology cjt ON cjt.classified_job_id = cj.id
 WHERE cj.is_current = true
+  AND rj.deleted_at IS NULL
   AND cj.status IN ('accepted', 'filtered_relevance')
   AND ($1::text = '' OR cj.relevance = $1)
   AND ($2::text = '' OR

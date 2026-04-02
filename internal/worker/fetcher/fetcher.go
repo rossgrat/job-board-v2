@@ -93,49 +93,76 @@ func (f *Fetcher) execute(ctx context.Context) error {
 		return fmt.Errorf("%s:%w:%w", fn, ErrFailedToLoadCompanies, err)
 	}
 
-	// For each company, load all jobs for that company, save them as raw jobs
-	// and queue up a triage job
 	var wg sync.WaitGroup
 	for _, company := range companies {
 		fetcherClient := f.clientsMap[JobBoardName(company.FetchType)]
 		wg.Go(func() {
-			jobs := make(chan model.RawJob)
-			errCh := make(chan error, 1)
-			go func() {
-				defer close(jobs)
-				errCh <- fetcherClient.GetJobs(ctx, company.ID.Bytes, company.FetchConfig, jobs)
-			}()
-
-			var count int64
-			for job := range jobs {
-				count++
-				if err := f.SaveJob(ctx, job); err != nil {
-					slog.Error("failed to save job",
-						slog.String("err", err.Error()),
-						slog.String("jobID", job.SourceJobID),
-						slog.String("company", company.Name))
-					telemetry.RecordFetchError(ctx, company.Name)
-				} else {
-					telemetry.RecordJobSaved(ctx, company.Name)
-				}
-			}
-
-			if err := <-errCh; err != nil {
-				slog.Error("failed to load jobs for company",
-					slog.String("err", err.Error()),
-					slog.String("company", company.Name))
-				telemetry.RecordFetchError(ctx, company.Name)
-			}
-
-			telemetry.RecordJobsFetched(ctx, company.Name, count)
-			slog.Info(fmt.Sprintf("loaded %d jobs for %s", count, company.Name))
-			slog.Info(fmt.Sprintf("saved %s jobs", company.Name))
+			f.fetchCompany(ctx, queries, company, fetcherClient)
 		})
 	}
 
 	wg.Wait()
 
 	return nil
+}
+
+func (f *Fetcher) fetchCompany(ctx context.Context, queries *db.Queries, company db.Company, client fetcherClient) {
+	jobs := make(chan model.RawJob)
+	errCh := make(chan error, 1)
+	go func() {
+		defer close(jobs)
+		errCh <- client.GetJobs(ctx, company.ID.Bytes, company.FetchConfig, jobs)
+	}()
+
+	count, seenSourceJobIDs := f.saveJobs(ctx, company.Name, jobs)
+
+	fetchErr := <-errCh
+	if fetchErr != nil {
+		slog.Error("failed to load jobs for company",
+			slog.String("err", fetchErr.Error()),
+			slog.String("company", company.Name))
+		telemetry.RecordFetchError(ctx, company.Name)
+	}
+
+	if fetchErr == nil && len(seenSourceJobIDs) > 0 {
+		f.softDeleteMissing(ctx, queries, company, seenSourceJobIDs)
+	}
+
+	telemetry.RecordJobsFetched(ctx, company.Name, count)
+	slog.Info(fmt.Sprintf("loaded %d jobs for %s", count, company.Name))
+}
+
+func (f *Fetcher) saveJobs(ctx context.Context, companyName string, jobs <-chan model.RawJob) (int64, []string) {
+	var count int64
+	var seenSourceJobIDs []string
+	for job := range jobs {
+		count++
+		seenSourceJobIDs = append(seenSourceJobIDs, job.SourceJobID)
+		if err := f.SaveJob(ctx, job); err != nil {
+			slog.Error("failed to save job",
+				slog.String("err", err.Error()),
+				slog.String("jobID", job.SourceJobID),
+				slog.String("company", companyName))
+			telemetry.RecordFetchError(ctx, companyName)
+		} else {
+			telemetry.RecordJobSaved(ctx, companyName)
+		}
+	}
+	return count, seenSourceJobIDs
+}
+
+func (f *Fetcher) softDeleteMissing(ctx context.Context, queries *db.Queries, company db.Company, seenSourceJobIDs []string) {
+	deleted, err := queries.SoftDeleteMissingJobs(ctx, db.SoftDeleteMissingJobsParams{
+		CompanyID:        company.ID,
+		SeenSourceJobIds: seenSourceJobIDs,
+	})
+	if err != nil {
+		slog.Error("failed to soft-delete missing jobs",
+			slog.String("err", err.Error()),
+			slog.String("company", company.Name))
+	} else if deleted > 0 {
+		slog.Info(fmt.Sprintf("soft-deleted %d jobs for %s", deleted, company.Name))
+	}
 }
 
 func (f *Fetcher) SaveJob(ctx context.Context, rawJob model.RawJob) error {
@@ -149,8 +176,9 @@ func (f *Fetcher) SaveJob(ctx context.Context, rawJob model.RawJob) error {
 
 	qtx := db.New(tx)
 
+	newID := pgtype.UUID{Bytes: uuid.Must(uuid.NewV7()), Valid: true}
 	newRawJob, err := qtx.CreateRawJob(ctx, db.CreateRawJobParams{
-		ID:          pgtype.UUID{Bytes: uuid.Must(uuid.NewV7()), Valid: true},
+		ID:          newID,
 		CompanyID:   pgtype.UUID{Bytes: rawJob.CompanyID, Valid: true},
 		SourceJobID: rawJob.SourceJobID,
 		Url:         rawJob.URL,
@@ -162,6 +190,12 @@ func (f *Fetcher) SaveJob(ctx context.Context, rawJob model.RawJob) error {
 			return nil // duplicate job, skip
 		}
 		return fmt.Errorf("%s:%w:%w", fn, ErrCreateRawJob, err)
+	}
+
+	// ON CONFLICT with WHERE deleted_at IS NOT NULL returns the existing row
+	// when un-deleting. Commit to persist deleted_at = NULL, skip pipeline.
+	if newRawJob.ID != newID {
+		return tx.Commit(ctx)
 	}
 
 	classifiedJob, err := qtx.CreateClassifiedJob(ctx, db.CreateClassifiedJobParams{
