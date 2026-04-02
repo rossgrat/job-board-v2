@@ -94,6 +94,7 @@ func (f *Fetcher) execute(ctx context.Context) error {
 		return fmt.Errorf("%s:%w:%w", fn, ErrFailedToLoadCompanies, err)
 	}
 
+	// Run the correct fetcher client for each company
 	var wg sync.WaitGroup
 	for _, company := range companies {
 		fetcherClient := f.clientsMap[JobBoardName(company.FetchType)]
@@ -133,13 +134,16 @@ func (f *Fetcher) fetchCompany(ctx context.Context, queries *db.Queries, company
 	slog.Info(fmt.Sprintf("loaded %d jobs for %s", count, company.Name))
 }
 
+// saveJobs reads from the jobs channel (which acts as a message queue of sorts)
+// saves jobs as they appear. This allows fetching of jobs and saving of jobs to
+// happen concurrently, where jobs cannot be fetched from an API all at once
 func (f *Fetcher) saveJobs(ctx context.Context, companyName string, jobs <-chan model.RawJob) (int64, []string) {
 	var count int64
 	var seenSourceJobIDs []string
 	for job := range jobs {
 		count++
 		seenSourceJobIDs = append(seenSourceJobIDs, job.SourceJobID)
-		if err := f.SaveJob(ctx, job); errors.Is(err, ErrDuplicateJob) {
+		if err := f.saveJob(ctx, job); errors.Is(err, ErrDuplicateJob) {
 			// no-op, job already exists
 		} else if err != nil {
 			slog.Error("failed to save job",
@@ -169,8 +173,8 @@ func (f *Fetcher) softDeleteMissing(ctx context.Context, queries *db.Queries, co
 	}
 }
 
-func (f *Fetcher) SaveJob(ctx context.Context, rawJob model.RawJob) error {
-	const fn = "Fetcher::SaveJob"
+func (f *Fetcher) saveJob(ctx context.Context, rawJob model.RawJob) error {
+	const fn = "Fetcher::saveJob"
 
 	tx, err := f.pool.Begin(ctx)
 	if err != nil {
