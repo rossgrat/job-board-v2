@@ -108,6 +108,9 @@ func (f *Fetcher) execute(ctx context.Context) error {
 	return nil
 }
 
+// fetchCompany concurrently uses the fetcher client to getch jobs for a company
+// while concurrently saving those jobs via a channel that acts as a message queue (jobs)
+// This is useful where jobs cannot be fetched from an API all at once
 func (f *Fetcher) fetchCompany(ctx context.Context, queries *db.Queries, company db.Company, client fetcherClient) {
 	jobs := make(chan model.RawJob)
 	errCh := make(chan error, 1)
@@ -134,26 +137,26 @@ func (f *Fetcher) fetchCompany(ctx context.Context, queries *db.Queries, company
 	slog.Info(fmt.Sprintf("loaded %d jobs for %s", count, company.Name))
 }
 
-// saveJobs reads from the jobs channel (which acts as a message queue of sorts)
-// saves jobs as they appear. This allows fetching of jobs and saving of jobs to
-// happen concurrently, where jobs cannot be fetched from an API all at once
 func (f *Fetcher) saveJobs(ctx context.Context, companyName string, jobs <-chan model.RawJob) (int64, []string) {
 	var count int64
 	var seenSourceJobIDs []string
 	for job := range jobs {
 		count++
 		seenSourceJobIDs = append(seenSourceJobIDs, job.SourceJobID)
-		if err := f.saveJob(ctx, job); errors.Is(err, ErrDuplicateJob) {
-			// no-op, job already exists
-		} else if err != nil {
+		if err := f.saveJob(ctx, job); err != nil {
+			if errors.Is(err, ErrDuplicateJob) {
+				// No-op on duplicate job, we expect these
+				continue
+			}
 			slog.Error("failed to save job",
 				slog.String("err", err.Error()),
 				slog.String("jobID", job.SourceJobID),
 				slog.String("company", companyName))
 			telemetry.RecordFetchError(ctx, companyName)
-		} else {
-			telemetry.RecordJobCreated(ctx, companyName)
+			continue
 		}
+		// Job was not a duplicate
+		telemetry.RecordJobCreated(ctx, companyName)
 	}
 	return count, seenSourceJobIDs
 }
@@ -167,9 +170,12 @@ func (f *Fetcher) softDeleteMissing(ctx context.Context, queries *db.Queries, co
 		slog.Error("failed to soft-delete missing jobs",
 			slog.String("err", err.Error()),
 			slog.String("company", company.Name))
-	} else if deleted > 0 {
+		return
+	}
+	if deleted > 0 {
 		telemetry.RecordJobsSoftDeleted(ctx, company.Name, deleted)
 		slog.Info(fmt.Sprintf("soft-deleted %d jobs for %s", deleted, company.Name))
+		return
 	}
 }
 
