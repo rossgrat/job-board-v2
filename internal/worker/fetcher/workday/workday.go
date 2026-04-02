@@ -137,6 +137,10 @@ func (c *Client) consumeDetails(ctx context.Context, baseAPI string, companyID u
 	var wg sync.WaitGroup
 
 	for summary := range summaries {
+		if summary.ExternalPath == "" {
+			continue
+		}
+
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
@@ -145,7 +149,7 @@ func (c *Client) consumeDetails(ctx context.Context, baseAPI string, companyID u
 				return
 			}
 
-			detail, err := c.fetchDetail(ctx, baseAPI, summary.ExternalPath)
+			detail, err := c.fetchDetailWithRetry(ctx, baseAPI, summary.ExternalPath, 2)
 			if err != nil {
 				slog.Error("failed to fetch workday job detail",
 					slog.String("path", summary.ExternalPath),
@@ -158,6 +162,24 @@ func (c *Client) consumeDetails(ctx context.Context, baseAPI string, companyID u
 	}
 
 	wg.Wait()
+}
+
+func (c *Client) fetchDetailWithRetry(ctx context.Context, baseAPI string, externalPath string, maxRetries int) (*WorkdayJobDetail, error) {
+	var lastErr error
+	for attempt := range maxRetries + 1 {
+		detail, err := c.fetchDetail(ctx, baseAPI, externalPath)
+		if err == nil {
+			return detail, nil
+		}
+		lastErr = err
+		if ctx.Err() != nil {
+			return nil, lastErr
+		}
+		if attempt < maxRetries {
+			time.Sleep(time.Duration(attempt+1) * time.Second)
+		}
+	}
+	return nil, lastErr
 }
 
 func (c *Client) fetchDetail(ctx context.Context, baseAPI string, externalPath string) (*WorkdayJobDetail, error) {
