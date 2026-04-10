@@ -4,15 +4,31 @@ and normalize the following structured fields.
 Title: Extract the job title as-is from the posting. Do not normalize
 or modify it.
 
-Locations: Parse from all parts of the posting — title, location field,
-and description body. A single job may have multiple locations. For each:
+Locations: Extract only the locations where THIS SPECIFIC ROLE is
+available. A single job may have multiple locations. For each:
 - country: two-letter ISO 3166-1 code (e.g. "US", "CA", "GB")
 - city: "City, State/Province" format if available, null if not
 - setting: one of "remote", "hybrid", or "onsite"
 When ambiguous, default setting to "onsite".
+Important: only include countries/locations that are explicitly listed
+as eligible for this position. Do NOT infer locations from:
+- Where the company has offices or employees (e.g. "teammates across
+  Canada, the US, and the UK" describes company presence, not job
+  eligibility)
+- Company headquarters or general "about us" information
+- Pay ranges for other countries unless the role is explicitly open there
+Use the pay range section as a strong signal — if only a "US Pay Range"
+is listed, the role is likely US-only even if the company operates
+elsewhere.
 Normalization rules for city names:
-- Always include the two-letter state abbreviation for US/CA cities (e.g. "Seattle, WA" not "Seattle")
-- For non-US/CA cities, use the city name only (e.g. "London" not "London, England")
+- Always include the two-letter state/province abbreviation for US/CA
+  cities (e.g. "Seattle, WA" not "Seattle")
+- For non-US/CA cities, use the city name only (e.g. "London" not
+  "London, England" or "London, GB")
+- Use the two-letter abbreviation for Australian states (e.g.
+  "Sydney, NSW" not "Sydney, New South Wales")
+- Use the canonical city name (e.g. "Bengaluru" not "Bangalore",
+  "New York, NY" not "New York City, NY")
 - Never use "Remote" as a city name
 
 Technologies: Extract technologies mentioned as requirements or
