@@ -39,6 +39,7 @@ main { max-width: 900px; margin: 0 auto; padding: 1rem; }
 h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); }
 .dashboard h2 { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: var(--text-muted); margin: 1rem 0 0.5rem; }
 .dashboard h2:first-child { margin-top: 0; }
+.empty-section { color: var(--text-muted); font-size: 12px; padding: 1rem 0; }
 
 /* Buttons */
 .btn {

@@ -6,17 +6,25 @@ templ DashboardPage(newJobs []DashboardJob, tabledJobs []DashboardJob) {
 	@Layout("Dashboard") {
 		<div class="dashboard">
 			<h2>New <span class="job-count">{ fmt.Sprintf("%d", len(newJobs)) }</span></h2>
-			<div class="job-list">
-				for _, job := range newJobs {
-					@JobListing(job)
-				}
-			</div>
+			if len(newJobs) == 0 {
+				<p class="empty-section">No new jobs to review</p>
+			} else {
+				<div class="job-list">
+					for _, job := range newJobs {
+						@JobListing(job)
+					}
+				</div>
+			}
 			<h2>Tabled <span class="job-count">{ fmt.Sprintf("%d", len(tabledJobs)) }</span></h2>
-			<div class="job-list">
-				for _, job := range tabledJobs {
-					@JobListing(job)
-				}
-			</div>
+			if len(tabledJobs) == 0 {
+				<p class="empty-section">No tabled jobs</p>
+			} else {
+				<div class="job-list">
+					for _, job := range tabledJobs {
+						@JobListing(job)
+					}
+				</div>
+			}
 		</div>
 	}
 }
