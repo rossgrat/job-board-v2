@@ -208,6 +208,7 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .modal__rejection-form { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.5rem; }
 .modal__rejection-form label { font-size: 11px; color: var(--text-muted); }
 .modal__rejection-form textarea {
+    width: 100%;
     padding: 6px;
     background: var(--bg);
     border: 1px solid var(--border);
@@ -216,6 +217,8 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
     font: inherit;
     font-size: 12px;
     resize: vertical;
+    appearance: none;
+    -webkit-appearance: none;
 }
 .modal__rejection-form button { align-self: flex-start; margin-top: 0.25rem; }
 .btn-active { color: var(--accent); border-color: var(--accent); }
