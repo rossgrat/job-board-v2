@@ -45,6 +45,7 @@ type ReviewModal struct {
 	RawJobID         string
 	Title            string
 	UserStatus       string
+	RejectionReason  string
 	ModelCategory    string
 	ModelRelevance   string
 	EvalCategory     string
@@ -77,9 +78,10 @@ type JobDetail struct {
 	URL          string
 	SourceJobID  string
 	DiscoveredAt string
-	UserStatus   string
-	CleanData    string
-	RawData      string
+	UserStatus      string
+	RejectionReason string
+	CleanData       string
+	RawData         string
 
 	// Company fields
 	CompanyName    string

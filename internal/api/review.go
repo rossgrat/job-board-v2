@@ -44,6 +44,7 @@ func (s *Server) renderReviewModal(w http.ResponseWriter, r *http.Request, cj db
 		RawJobID:        uuidToString(rj.ID),
 		Title:           textOrEmpty(cj.Title),
 		UserStatus:      textOrEmpty(rj.UserStatus),
+		RejectionReason: textOrEmpty(rj.RejectionReason),
 		ModelCategory:   textOrEmpty(cj.Category),
 		ModelRelevance:  textOrEmpty(cj.Relevance),
 	}
@@ -69,6 +70,7 @@ func (s *Server) handleSetStatus(w http.ResponseWriter, r *http.Request) {
 	}
 
 	status := r.FormValue("status")
+	rejectionReason := r.FormValue("rejection_reason")
 
 	queries := db.New(s.pool)
 	ctx := r.Context()
@@ -85,9 +87,15 @@ func (s *Server) handleSetStatus(w http.ResponseWriter, r *http.Request) {
 		userStatus = pgtype.Text{String: status, Valid: true}
 	}
 
+	var reason pgtype.Text
+	if status == "rejected" && rejectionReason != "" {
+		reason = pgtype.Text{String: rejectionReason, Valid: true}
+	}
+
 	err = queries.SetUserStatus(ctx, db.SetUserStatusParams{
-		ID:         cj.RawJobID,
-		UserStatus: userStatus,
+		ID:              cj.RawJobID,
+		UserStatus:      userStatus,
+		RejectionReason: reason,
 	})
 	if err != nil {
 		slog.Error("failed to set user status", slog.String("err", err.Error()))

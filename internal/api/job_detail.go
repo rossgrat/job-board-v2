@@ -80,8 +80,9 @@ func toJobDetail(
 		RawJobID:    uuidToString(rj.ID),
 		URL:         rj.Url,
 		SourceJobID: rj.SourceJobID,
-		UserStatus:  textOrEmpty(rj.UserStatus),
-		CleanData:   rj.CleanData,
+		UserStatus:      textOrEmpty(rj.UserStatus),
+		RejectionReason: textOrEmpty(rj.RejectionReason),
+		CleanData:       rj.CleanData,
 		RawData:     string(rj.RawData),
 
 		CompanyName:    company.Name,

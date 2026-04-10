@@ -8,7 +8,7 @@ RETURNING *;
 SELECT * FROM raw_job WHERE id = $1;
 
 -- name: SetUserStatus :exec
-UPDATE raw_job SET user_status = $2 WHERE id = $1;
+UPDATE raw_job SET user_status = $2, rejection_reason = $3 WHERE id = $1;
 
 -- name: GetRawJobsWithEmptyCleanData :many
 SELECT * FROM raw_job WHERE clean_data = '';

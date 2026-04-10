@@ -84,13 +84,14 @@ type OutboxTask struct {
 }
 
 type RawJob struct {
-	ID           pgtype.UUID
-	CompanyID    pgtype.UUID
-	SourceJobID  string
-	Url          string
-	RawData      []byte
-	CleanData    string
-	DiscoveredAt pgtype.Timestamptz
-	UserStatus   pgtype.Text
-	DeletedAt    pgtype.Timestamptz
+	ID              pgtype.UUID
+	CompanyID       pgtype.UUID
+	SourceJobID     string
+	Url             string
+	RawData         []byte
+	CleanData       string
+	DiscoveredAt    pgtype.Timestamptz
+	UserStatus      pgtype.Text
+	RejectionReason pgtype.Text
+	DeletedAt       pgtype.Timestamptz
 }

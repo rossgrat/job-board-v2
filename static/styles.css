@@ -205,6 +205,19 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
     background-position: right 6px center;
 }
 .modal__eval-form button { align-self: flex-start; margin-top: 0.25rem; }
+.modal__rejection-form { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.5rem; }
+.modal__rejection-form label { font-size: 11px; color: var(--text-muted); }
+.modal__rejection-form textarea {
+    padding: 6px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    font: inherit;
+    font-size: 12px;
+    resize: vertical;
+}
+.modal__rejection-form button { align-self: flex-start; margin-top: 0.25rem; }
 .btn-active { color: var(--accent); border-color: var(--accent); }
 .btn-primary { color: var(--accent); border-color: var(--accent); }
 .btn-primary:hover { background: var(--accent); color: var(--bg); }

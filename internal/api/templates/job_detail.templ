@@ -75,6 +75,10 @@ templ JobDetailPage(job JobDetail) {
 				</dd>
 				<dt>User Status</dt>
 				<dd>{ job.UserStatus }</dd>
+				if job.RejectionReason != "" {
+					<dt>Rejection Reason</dt>
+					<dd>{ job.RejectionReason }</dd>
+				}
 				<dt>URL</dt>
 				<dd><a href={ templ.SafeURL(job.URL) } target="_blank" rel="noopener">{ job.URL }</a></dd>
 			</dl>
