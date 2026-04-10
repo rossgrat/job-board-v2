@@ -1,4 +1,4 @@
-h1:e7YuVqvOMNEnAenkVONypRZ8tROfbKaiKA7Maj2Aug4=
+h1:N5A0zN2IB7vlfYkC+SLZlhCZizxEEM9wBkYMQsJCV6M=
 20260326170203_add-companies.sql h1:6ATSYmGaeYkN56wWOmxyHD7iCPC22QLARt3GnMHMxvs=
 20260327203215_seed_stripe.sql h1:hn+lj/uIC3ToaelOjJ4LNGyenxSQvJbsB39nsTrMaiY=
 20260327211028_add-pipeline-tables.sql h1:6ob/GuBdbhVPbk4vH07xHdXaB52/alFJe68lSn/66Ko=
@@ -12,3 +12,4 @@ h1:e7YuVqvOMNEnAenkVONypRZ8tROfbKaiKA7Maj2Aug4=
 20260401164727_add_nvidia.sql h1:1QMHcucFUJDxkcYfw9OZa+W1Z4ztl4jN/HLLF2/Qlo8=
 20260401180000_fix_oxide_favicon.sql h1:gbMxfblKr5wyzyOUQjpJ3B0XPSdwXNq+Uk3gMDgs1n8=
 20260402153724_add-raw-job-deleted-at.sql h1:teG5ihT6D1gKuZmGPV5Dkk4cCuN/agOL+NSQ29TZ62Y=
+20260410_add_rejection_reason.sql h1:v/WqO1hzl4ItQnBhMd7BAvgM/MQA6m5fH1KuKnAgfiQ=
