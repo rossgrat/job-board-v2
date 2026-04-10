@@ -2,13 +2,18 @@ package templates
 
 import "fmt"
 
-templ DashboardPage(jobs []DashboardJob) {
+templ DashboardPage(newJobs []DashboardJob, tabledJobs []DashboardJob) {
 	@Layout("Dashboard") {
 		<div class="dashboard">
-			<h1>Dashboard</h1>
-			<p class="job-count">{ fmt.Sprintf("%d", len(jobs)) } jobs</p>
+			<h2>New <span class="job-count">{ fmt.Sprintf("%d", len(newJobs)) }</span></h2>
 			<div class="job-list">
-				for _, job := range jobs {
+				for _, job := range newJobs {
+					@JobListing(job)
+				}
+			</div>
+			<h2>Tabled <span class="job-count">{ fmt.Sprintf("%d", len(tabledJobs)) }</span></h2>
+			<div class="job-list">
+				for _, job := range tabledJobs {
 					@JobListing(job)
 				}
 			</div>

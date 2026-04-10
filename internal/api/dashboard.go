@@ -27,14 +27,18 @@ func (s *Server) handleDashboard(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	jobs := make([]templates.DashboardJob, 0, len(rows))
+	var newJobs, tabledJobs []templates.DashboardJob
 	for _, row := range rows {
 		j := toDashboardJob(row)
 		j.Locations = filterLocations(j.Locations, locFilters)
-		jobs = append(jobs, j)
+		if j.UserStatus == "tabled" {
+			tabledJobs = append(tabledJobs, j)
+		} else {
+			newJobs = append(newJobs, j)
+		}
 	}
 
-	templates.DashboardPage(jobs).Render(ctx, w)
+	templates.DashboardPage(newJobs, tabledJobs).Render(ctx, w)
 }
 
 func toDashboardJob(row db.ListDashboardJobsRow) templates.DashboardJob {

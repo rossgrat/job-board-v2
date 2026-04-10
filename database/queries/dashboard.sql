@@ -81,12 +81,11 @@ WHERE cj.is_current = true
   AND rj.deleted_at IS NULL
   AND cj.status = 'accepted'
   AND cj.relevance IN ('strong_match', 'good_match')
-  AND (rj.user_status IS NULL OR rj.user_status != 'rejected')
+  AND (rj.user_status IS NULL OR rj.user_status = 'tabled')
 GROUP BY cj.id, rj.id, c.id
 ORDER BY
     CASE WHEN rj.user_status IS NULL THEN 0
-         WHEN rj.user_status = 'applied' THEN 1
-         WHEN rj.user_status = 'tabled' THEN 2
-         ELSE 3 END,
+         WHEN rj.user_status = 'tabled' THEN 1
+         ELSE 2 END,
     CASE WHEN cj.relevance = 'strong_match' THEN 0 ELSE 1 END,
     rj.discovered_at DESC;
