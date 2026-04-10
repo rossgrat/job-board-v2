@@ -1,4 +1,4 @@
-.PHONY: build run-worker docker-clean docker-up docker-down generate migrate-diff migrate-apply deploy deploy-stop deploy-logs
+.PHONY: build run-worker docker-clean docker-up docker-down generate migrate-diff migrate-apply deploy deploy-stop deploy-logs purge-cache
 
 include .env
 export
@@ -62,6 +62,7 @@ REMOTE_DIR = ~/services/job-board-v2
 deploy: deploy-migrate
 	scp deploy/docker-compose.yml $(SERVER):$(REMOTE_DIR)/docker-compose.yml
 	ssh $(SERVER) "cd $(REMOTE_DIR) && docker pull $(IMAGE):latest && docker compose up -d"
+	$(MAKE) purge-cache
 
 ATLAS_IMAGE = arigaio/atlas:1.1.6-community
 DOCKER_NETWORK = job-board-v2_job-board-internal
@@ -76,6 +77,12 @@ deploy-migrate:
 			migrate apply \
 				--dir file://migrations \
 				--url postgres://$$POSTGRES_USER:$$POSTGRES_PASSWORD@postgres:5432/$$POSTGRES_DB?sslmode=disable'
+
+purge-cache:
+	@curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$(CLOUDFLARE_ZONE_ID)/purge_cache" \
+		-H "Authorization: Bearer $(CLOUDFLARE_API_TOKEN)" \
+		-H "Content-Type: application/json" \
+		--data '{"purge_everything":true}' | python3 -c "import sys,json; r=json.load(sys.stdin); print('Cache purged' if r['success'] else f'Purge failed: {r[\"errors\"]}')"
 
 deploy-stop:
 	ssh $(SERVER) "cd $(REMOTE_DIR) && docker compose down"
