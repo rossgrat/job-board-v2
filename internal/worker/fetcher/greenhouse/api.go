@@ -21,8 +21,9 @@ type GreenhouseJob struct {
 	UpdatedAt      string                 `json:"updated_at"`
 	FirstPublished string                 `json:"first_published"`
 	CompanyName    string                 `json:"company_name"`
-	Departments    []GreenhouseDepartment `json:"departments"`
-	Offices        []GreenhouseOffice     `json:"offices"`
+	Departments     []GreenhouseDepartment `json:"departments"`
+	Offices         []GreenhouseOffice     `json:"offices"`
+	ResolvedOffices []GreenhouseOffice     `json:"resolved_offices,omitempty"`
 }
 
 func (gj *GreenhouseJob) ToModel(companyID uuid.UUID) model.RawJob {
@@ -49,4 +50,16 @@ type GreenhouseOffice struct {
 	ID       int    `json:"id"`
 	Name     string `json:"name"`
 	Location string `json:"location"`
+	ChildIDs []int  `json:"child_ids,omitempty"`
+}
+
+type GreenhouseOfficesResponse struct {
+	Offices []GreenhouseOfficeNode `json:"offices"`
+}
+
+type GreenhouseOfficeNode struct {
+	ID           int                    `json:"id"`
+	Name         string                 `json:"name"`
+	Location     *string                `json:"location"`
+	ChildOffices []GreenhouseOfficeNode `json:"child_offices"`
 }
