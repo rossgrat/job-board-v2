@@ -6,7 +6,13 @@ templ JobListing(job DashboardJob) {
 	<div class={ "job-card", templ.KV("job-card--new", job.UserStatus == "") }>
 		<div class="job-card__left">
 			<h3 class="job-card__title">
-				<a href={ templ.SafeURL(job.URL) } target="_blank" rel="noopener">{ job.Title }</a>
+				<a href={ templ.SafeURL(job.URL) } target="_blank" rel="noopener">
+					if job.Title != "" {
+						{ job.Title }
+					} else {
+						<span class="job-card__no-title">(no title)</span>
+					}
+				</a>
 				if job.HasEval {
 					<span class="eval-dot" title="eval saved"></span>
 				}
@@ -23,6 +29,9 @@ templ JobListing(job DashboardJob) {
 				}
 				if job.Relevance != "" {
 					<span class={ "badge", "badge--" + job.Relevance }>{ job.Relevance }</span>
+				}
+				if job.Status != "" && job.Status != "accepted" {
+					<span class={ "badge", "badge--" + job.Status }>{ job.Status }</span>
 				}
 				if job.UserStatus != "" {
 					<span class={ "badge", "badge--" + job.UserStatus }>{ job.UserStatus }</span>

@@ -10,6 +10,7 @@ import (
 )
 
 func (s *Server) handleFilter(w http.ResponseWriter, r *http.Request) {
+	status := r.URL.Query().Get("status")
 	relevance := r.URL.Query().Get("relevance")
 	userStatus := r.URL.Query().Get("user_status")
 	companyName := r.URL.Query().Get("company")
@@ -18,6 +19,7 @@ func (s *Server) handleFilter(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
 
 	rows, err := queries.ListFilteredJobs(ctx, db.ListFilteredJobsParams{
+		Status:      status,
 		Relevance:   relevance,
 		UserStatus:  userStatus,
 		CompanyName: companyName,
@@ -55,6 +57,7 @@ func (s *Server) handleFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filters := templates.FilterState{
+		Status:       status,
 		Relevance:    relevance,
 		UserStatus:   userStatus,
 		CompanyName:  companyName,
@@ -74,6 +77,7 @@ func toFilteredJob(row db.ListFilteredJobsRow) templates.DashboardJob {
 		Level:          textOrEmpty(row.Level),
 		Category:       textOrEmpty(row.Category),
 		Relevance:      textOrEmpty(row.Relevance),
+		Status:         row.Status,
 		UserStatus:     textOrEmpty(row.UserStatus),
 	}
 

@@ -116,6 +116,7 @@ const listFilteredJobs = `-- name: ListFilteredJobs :many
 SELECT
     cj.id,
     cj.title,
+    cj.status,
     cj.salary_min,
     cj.salary_max,
     cj.level,
@@ -145,12 +146,16 @@ LEFT JOIN classified_job_location cjl ON cjl.classified_job_id = cj.id
 LEFT JOIN classified_job_technology cjt ON cjt.classified_job_id = cj.id
 WHERE cj.is_current = true
   AND rj.deleted_at IS NULL
-  AND cj.status IN ('accepted', 'filtered_relevance')
-  AND ($1::text = '' OR cj.relevance = $1)
-  AND ($2::text = '' OR
-       ($2 = 'new' AND rj.user_status IS NULL) OR
-       ($2 != 'new' AND rj.user_status = $2))
-  AND ($3::text = '' OR c.name = $3)
+  AND (
+    ($1::text = '' AND cj.status IN ('accepted', 'filtered_relevance'))
+    OR ($1::text = 'all' AND cj.status NOT IN ('pending', 'dead'))
+    OR cj.status = $1::text
+  )
+  AND ($2::text = '' OR cj.relevance = $2)
+  AND ($3::text = '' OR
+       ($3 = 'new' AND rj.user_status IS NULL) OR
+       ($3 != 'new' AND rj.user_status = $3))
+  AND ($4::text = '' OR c.name = $4)
 GROUP BY cj.id, rj.id, c.id
 ORDER BY
     CASE WHEN rj.user_status IS NULL THEN 0
@@ -162,6 +167,7 @@ ORDER BY
 `
 
 type ListFilteredJobsParams struct {
+	Status      string
 	Relevance   string
 	UserStatus  string
 	CompanyName string
@@ -170,6 +176,7 @@ type ListFilteredJobsParams struct {
 type ListFilteredJobsRow struct {
 	ID                pgtype.UUID
 	Title             pgtype.Text
+	Status            string
 	SalaryMin         pgtype.Int4
 	SalaryMax         pgtype.Int4
 	Level             pgtype.Text
@@ -187,7 +194,12 @@ type ListFilteredJobsRow struct {
 }
 
 func (q *Queries) ListFilteredJobs(ctx context.Context, arg ListFilteredJobsParams) ([]ListFilteredJobsRow, error) {
-	rows, err := q.db.Query(ctx, listFilteredJobs, arg.Relevance, arg.UserStatus, arg.CompanyName)
+	rows, err := q.db.Query(ctx, listFilteredJobs,
+		arg.Status,
+		arg.Relevance,
+		arg.UserStatus,
+		arg.CompanyName,
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -198,6 +210,7 @@ func (q *Queries) ListFilteredJobs(ctx context.Context, arg ListFilteredJobsPara
 		if err := rows.Scan(
 			&i.ID,
 			&i.Title,
+			&i.Status,
 			&i.SalaryMin,
 			&i.SalaryMax,
 			&i.Level,

@@ -12,6 +12,7 @@ type DashboardJob struct {
 	HasSalary      bool
 	Category       string
 	Relevance      string
+	Status         string
 	DiscoveredAt   string
 	UserStatus     string
 	Locations      []Location
@@ -34,6 +35,7 @@ type CompanyItem struct {
 }
 
 type FilterState struct {
+	Status       string
 	Relevance    string
 	UserStatus   string
 	CompanyName  string

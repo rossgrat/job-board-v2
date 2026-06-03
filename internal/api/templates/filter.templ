@@ -7,6 +7,15 @@ templ FilterPage(jobs []DashboardJob, filters FilterState) {
 		<div class="browse">
 			<h1>Browse</h1>
 			<form class="filters" method="get" action="/browse" onchange="this.submit()">
+				<select name="status">
+					<option value="">Considered</option>
+					@labeledOption("all", "All (incl. rejected)", filters.Status)
+					@labeledOption("accepted", "Accepted", filters.Status)
+					@labeledOption("filtered_relevance", "Rejected: relevance", filters.Status)
+					@labeledOption("filtered_level", "Rejected: level", filters.Status)
+					@labeledOption("filtered_location", "Rejected: location", filters.Status)
+					@labeledOption("non_technical", "Rejected: non-technical", filters.Status)
+				</select>
 				<select name="relevance">
 					<option value="">All relevance</option>
 					@filterOption("strong_match", filters.Relevance)
@@ -15,7 +24,7 @@ templ FilterPage(jobs []DashboardJob, filters FilterState) {
 					@filterOption("weak_match", filters.Relevance)
 				</select>
 				<select name="user_status">
-					<option value="">All statuses</option>
+					<option value="">All user statuses</option>
 					@filterOption("new", filters.UserStatus)
 					@filterOption("applied", filters.UserStatus)
 					@filterOption("tabled", filters.UserStatus)
@@ -43,5 +52,13 @@ templ filterOption(value string, selected string) {
 		<option value={ value } selected>{ value }</option>
 	} else {
 		<option value={ value }>{ value }</option>
+	}
+}
+
+templ labeledOption(value string, label string, selected string) {
+	if value == selected {
+		<option value={ value } selected>{ label }</option>
+	} else {
+		<option value={ value }>{ label }</option>
 	}
 }
