@@ -18,6 +18,7 @@ import (
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/atomfeed"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/bamboohr"
+	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/doorsopen"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/girecruit"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/greenhouse"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/smartrecruiters"
@@ -56,6 +57,7 @@ func New(pool *pgxpool.Pool, opts ...FetcherOption) (*Fetcher, error) {
 		clientsMap: map[JobBoardName]fetcherClient{
 			"atomfeed":        atomfeed.New(),
 			"bamboohr":        bamboohr.New(),
+			"doorsopen":       doorsopen.New(),
 			"girecruit":       girecruit.New(),
 			"greenhouse":      greenhouse.New(),
 			"smartrecruiters": smartrecruiters.New(),

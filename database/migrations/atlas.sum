@@ -1,4 +1,4 @@
-h1:OK/oisecHnS/Y6RlB2CtKxGHlvl97+DB7qrnC4s5xuQ=
+h1:s6D1RNX9ZIMSA0YSRIlIbRtgkpS3d0UHmm5I065fTMw=
 20260326170203_add-companies.sql h1:6ATSYmGaeYkN56wWOmxyHD7iCPC22QLARt3GnMHMxvs=
 20260327203215_seed_stripe.sql h1:hn+lj/uIC3ToaelOjJ4LNGyenxSQvJbsB39nsTrMaiY=
 20260327211028_add-pipeline-tables.sql h1:6ob/GuBdbhVPbk4vH07xHdXaB52/alFJe68lSn/66Ko=
@@ -17,3 +17,4 @@ h1:OK/oisecHnS/Y6RlB2CtKxGHlvl97+DB7qrnC4s5xuQ=
 20260603162437_add_beatport.sql h1:2lm4YOKXswcpr2ye26/MwkY5e6ekMM1wO+JfLIEOh6Q=
 20260603164934_add_pioneer_dj.sql h1:GdFI9LrH2m2eENnn5DSxzQPcUgJKvPmhcl7wuJXShmQ=
 20260603171301_add_bandcamp.sql h1:k6HzvtGT6PHi8VNBjQyx+sgXl0YFGZpmdbLi3chvBD4=
+20260603182425_add_pioneer_dj_us.sql h1:YDLlgPs3/hJtbzH2cG+8hMIQR9YDX/J+TmwsjwP/71Y=
