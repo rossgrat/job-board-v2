@@ -18,6 +18,7 @@ import (
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/atomfeed"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/greenhouse"
+	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/smartrecruiters"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/workable"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/workday"
 	"github.com/rossgrat/job-board-v2/plugin/runner"
@@ -51,10 +52,11 @@ func New(pool *pgxpool.Pool, opts ...FetcherOption) (*Fetcher, error) {
 		pool:       pool,
 		tickerTime: time.Hour * 1,
 		clientsMap: map[JobBoardName]fetcherClient{
-			"atomfeed":   atomfeed.New(),
-			"greenhouse": greenhouse.New(),
-			"workable":   workable.New(),
-			"workday":    workday.New(),
+			"atomfeed":        atomfeed.New(),
+			"greenhouse":      greenhouse.New(),
+			"smartrecruiters": smartrecruiters.New(),
+			"workable":        workable.New(),
+			"workday":         workday.New(),
 		},
 	}
 
