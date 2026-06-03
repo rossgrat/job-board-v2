@@ -72,7 +72,6 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .badge--tabled { color: var(--tabled); }
 .badge--strong_match { color: var(--accent); }
 .badge--good_match { color: var(--text-muted); }
-.badge--non_technical,
 .badge--filtered_relevance,
 .badge--filtered_level,
 .badge--filtered_location { color: var(--danger); }
@@ -102,7 +101,6 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .job-card__title { font-weight: 600; }
 .job-card__title a { color: var(--text); }
 .job-card__title a:hover { color: var(--accent); }
-.job-card__no-title { color: var(--text-muted); font-style: italic; font-weight: 400; }
 
 .eval-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--success); margin-left: 0.35rem; vertical-align: middle; }
 

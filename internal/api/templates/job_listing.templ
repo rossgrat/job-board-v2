@@ -6,13 +6,7 @@ templ JobListing(job DashboardJob) {
 	<div class={ "job-card", templ.KV("job-card--new", job.UserStatus == "") }>
 		<div class="job-card__left">
 			<h3 class="job-card__title">
-				<a href={ templ.SafeURL(job.URL) } target="_blank" rel="noopener">
-					if job.Title != "" {
-						{ job.Title }
-					} else {
-						<span class="job-card__no-title">(no title)</span>
-					}
-				</a>
+				<a href={ templ.SafeURL(job.URL) } target="_blank" rel="noopener">{ job.Title }</a>
 				if job.HasEval {
 					<span class="eval-dot" title="eval saved"></span>
 				}

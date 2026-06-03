@@ -14,22 +14,23 @@ templ FilterPage(jobs []DashboardJob, filters FilterState) {
 					@labeledOption("filtered_relevance", "Rejected: relevance", filters.Status)
 					@labeledOption("filtered_level", "Rejected: level", filters.Status)
 					@labeledOption("filtered_location", "Rejected: location", filters.Status)
-					@labeledOption("non_technical", "Rejected: non-technical", filters.Status)
 				</select>
-				<select name="relevance">
-					<option value="">All relevance</option>
-					@filterOption("strong_match", filters.Relevance)
-					@filterOption("good_match", filters.Relevance)
-					@filterOption("partial_match", filters.Relevance)
-					@filterOption("weak_match", filters.Relevance)
-				</select>
-				<select name="user_status">
-					<option value="">All user statuses</option>
-					@filterOption("new", filters.UserStatus)
-					@filterOption("applied", filters.UserStatus)
-					@filterOption("tabled", filters.UserStatus)
-					@filterOption("rejected", filters.UserStatus)
-				</select>
+				if hasRelevance(filters.Status) {
+					<select name="relevance">
+						<option value="">All relevance</option>
+						@filterOption("strong_match", filters.Relevance)
+						@filterOption("good_match", filters.Relevance)
+						@filterOption("partial_match", filters.Relevance)
+						@filterOption("weak_match", filters.Relevance)
+					</select>
+					<select name="user_status">
+						<option value="">All user statuses</option>
+						@filterOption("new", filters.UserStatus)
+						@filterOption("applied", filters.UserStatus)
+						@filterOption("tabled", filters.UserStatus)
+						@filterOption("rejected", filters.UserStatus)
+					</select>
+				}
 				<select name="company">
 					<option value="">All companies</option>
 					for _, name := range filters.CompanyNames {
