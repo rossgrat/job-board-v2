@@ -174,8 +174,11 @@ func (c *Client) fetchSearchPage(ctx context.Context, baseURL string, pr int) ([
 func (c *Client) fetchDetail(ctx context.Context, baseURL, id, path string) (*detailJob, error) {
 	const fn = "iCIMS::fetchDetail"
 
+	// in_iframe=1 strips iCIMS's Shure-branded chrome and renders the bare
+	// posting; without it the JobPosting JSON-LD block is missing. Store the
+	// clean URL for the UI link, fetch from the iframe variant.
 	url := baseURL + path
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url+"?in_iframe=1", nil)
 	if err != nil {
 		return nil, fmt.Errorf("%s:%w:%w", fn, ErrCreateRequest, err)
 	}
