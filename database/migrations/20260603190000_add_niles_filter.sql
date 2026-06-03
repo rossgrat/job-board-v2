@@ -1,0 +1,7 @@
+-- Group 3: Niles, IL onsite/hybrid (Shure HQ commute), mid/senior
+INSERT INTO filter_group (id) VALUES ('019605a0-0003-7000-8000-000000000001');
+INSERT INTO filter_condition (id, filter_group_id, field, operator, value) VALUES
+    ('019605a0-0003-7000-8000-000000000010', '019605a0-0003-7000-8000-000000000001', 'location_country', 'equals', 'US'),
+    ('019605a0-0003-7000-8000-000000000011', '019605a0-0003-7000-8000-000000000001', 'location_city', 'equals', 'Niles, IL'),
+    ('019605a0-0003-7000-8000-000000000012', '019605a0-0003-7000-8000-000000000001', 'location_setting', 'in', '["onsite", "hybrid", "remote"]'),
+    ('019605a0-0003-7000-8000-000000000013', '019605a0-0003-7000-8000-000000000001', 'level', 'in', '["mid", "senior"]');

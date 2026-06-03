@@ -1,4 +1,4 @@
-h1:s6D1RNX9ZIMSA0YSRIlIbRtgkpS3d0UHmm5I065fTMw=
+h1:grRuqRxN+jtLmulup1gGjV8yJ+1iABAtd69pldLvwyw=
 20260326170203_add-companies.sql h1:6ATSYmGaeYkN56wWOmxyHD7iCPC22QLARt3GnMHMxvs=
 20260327203215_seed_stripe.sql h1:hn+lj/uIC3ToaelOjJ4LNGyenxSQvJbsB39nsTrMaiY=
 20260327211028_add-pipeline-tables.sql h1:6ob/GuBdbhVPbk4vH07xHdXaB52/alFJe68lSn/66Ko=
@@ -18,3 +18,6 @@ h1:s6D1RNX9ZIMSA0YSRIlIbRtgkpS3d0UHmm5I065fTMw=
 20260603164934_add_pioneer_dj.sql h1:GdFI9LrH2m2eENnn5DSxzQPcUgJKvPmhcl7wuJXShmQ=
 20260603171301_add_bandcamp.sql h1:k6HzvtGT6PHi8VNBjQyx+sgXl0YFGZpmdbLi3chvBD4=
 20260603182425_add_pioneer_dj_us.sql h1:YDLlgPs3/hJtbzH2cG+8hMIQR9YDX/J+TmwsjwP/71Y=
+20260603190000_add_niles_filter.sql h1:M+JtPhSvpT1QSS+GyUWR0BAHvjq8/sDbw9tkbIC5gmI=
+20260603190100_add_denon_dj.sql h1:K6hsdaoX/nLVxKXMEa8wwWq70gXzpmc2UCDf9Btx4cI=
+20260603190200_add_shure.sql h1:X56MB0hSTEJrETcdl0hTF/wVTYLyDHl15HaxJntunkM=

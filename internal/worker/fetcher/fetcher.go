@@ -21,6 +21,8 @@ import (
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/doorsopen"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/girecruit"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/greenhouse"
+	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/icims"
+	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/pinpoint"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/smartrecruiters"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/workable"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/workday"
@@ -60,6 +62,8 @@ func New(pool *pgxpool.Pool, opts ...FetcherOption) (*Fetcher, error) {
 			"doorsopen":       doorsopen.New(),
 			"girecruit":       girecruit.New(),
 			"greenhouse":      greenhouse.New(),
+			"icims":           icims.New(),
+			"pinpoint":        pinpoint.New(),
 			"smartrecruiters": smartrecruiters.New(),
 			"workable":        workable.New(),
 			"workday":         workday.New(),
