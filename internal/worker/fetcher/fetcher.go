@@ -16,12 +16,15 @@ import (
 	"github.com/rossgrat/job-board-v2/internal/model"
 	"github.com/rossgrat/job-board-v2/internal/telemetry"
 	"github.com/rossgrat/job-board-v2/internal/worker/constants"
+	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/ashby"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/atomfeed"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/bamboohr"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/doorsopen"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/girecruit"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/greenhouse"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/icims"
+	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/jibe"
+	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/lever"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/pinpoint"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/smartrecruiters"
 	"github.com/rossgrat/job-board-v2/internal/worker/fetcher/workable"
@@ -57,12 +60,15 @@ func New(pool *pgxpool.Pool, opts ...FetcherOption) (*Fetcher, error) {
 		pool:       pool,
 		tickerTime: time.Hour * 1,
 		clientsMap: map[JobBoardName]fetcherClient{
+			"ashby":           ashby.New(),
 			"atomfeed":        atomfeed.New(),
 			"bamboohr":        bamboohr.New(),
 			"doorsopen":       doorsopen.New(),
 			"girecruit":       girecruit.New(),
 			"greenhouse":      greenhouse.New(),
 			"icims":           icims.New(),
+			"jibe":            jibe.New(),
+			"lever":           lever.New(),
 			"pinpoint":        pinpoint.New(),
 			"smartrecruiters": smartrecruiters.New(),
 			"workable":        workable.New(),

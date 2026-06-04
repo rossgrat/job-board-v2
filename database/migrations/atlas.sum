@@ -1,4 +1,4 @@
-h1:grRuqRxN+jtLmulup1gGjV8yJ+1iABAtd69pldLvwyw=
+h1:7XTgKZejHC6Uo3pG0VafDtFFxSdrSrUl//Ror2WuEck=
 20260326170203_add-companies.sql h1:6ATSYmGaeYkN56wWOmxyHD7iCPC22QLARt3GnMHMxvs=
 20260327203215_seed_stripe.sql h1:hn+lj/uIC3ToaelOjJ4LNGyenxSQvJbsB39nsTrMaiY=
 20260327211028_add-pipeline-tables.sql h1:6ob/GuBdbhVPbk4vH07xHdXaB52/alFJe68lSn/66Ko=
@@ -21,3 +21,11 @@ h1:grRuqRxN+jtLmulup1gGjV8yJ+1iABAtd69pldLvwyw=
 20260603190000_add_niles_filter.sql h1:M+JtPhSvpT1QSS+GyUWR0BAHvjq8/sDbw9tkbIC5gmI=
 20260603190100_add_denon_dj.sql h1:K6hsdaoX/nLVxKXMEa8wwWq70gXzpmc2UCDf9Btx4cI=
 20260603190200_add_shure.sql h1:X56MB0hSTEJrETcdl0hTF/wVTYLyDHl15HaxJntunkM=
+20260603190300_add_whoop.sql h1:jbByjvcxNOvx8gD2McTeu2rqlDEN8/G2HeRpy22ibrI=
+20260603190400_add_oura.sql h1:BZZ511X22XqR3nCTICSumAXRZ/jdJqhBAx5MG125T6k=
+20260603190500_add_garmin.sql h1:CF+WjMNxBPYbJjwxsnlVyzGMU2jnky4KXkKXtWHTbx8=
+20260603190600_add_strava.sql h1:3x9h9CTbXK8eEgL+23uKzMfGb0gXXO18Zrqu89YJTz8=
+20260603190700_add_rivian.sql h1:y0qRPsoLVYyVmuOnNDTGjOfWCQtJwT/qdfmYVL37KuE=
+20260603190800_add_plaid.sql h1:rbkcP4DM4766XJ+wg8HstyBWCD1Sk4hRrqXdGKzjC0M=
+20260603190900_add_sofi.sql h1:6hCXx1IAWAdPG8a+sWsqWmiKFe8UsjFDSQZyUSnblmc=
+20260604140000_self_host_favicons.sql h1:C87e3B+6y0G1H+ehiUph+9uuun7KpKuw0srW5XuyaI0=
