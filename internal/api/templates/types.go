@@ -32,7 +32,6 @@ type CompanyItem struct {
 	Favicon   string
 	FetchType string
 	IsActive  bool
-	Counts    CompanyJobCounts
 }
 
 type CompanyJobCounts struct {
@@ -43,6 +42,37 @@ type CompanyJobCounts struct {
 	NonTechnical      int64
 	Pending           int64
 	Dead              int64
+}
+
+type MetricsCompany struct {
+	Name    string
+	Favicon string
+	Counts  CompanyJobCounts
+}
+
+type CountSegment struct {
+	Label string
+	Class string
+	Count int64
+	Pct   float64
+}
+
+// Segments returns the mutually-exclusive status buckets that sum to Total,
+// each with its share of the bar width.
+func (n CompanyJobCounts) Segments() []CountSegment {
+	segs := []CountSegment{
+		{Label: "accepted", Class: "seg--accepted", Count: n.Accepted},
+		{Label: "filtered", Class: "seg--filtered", Count: n.FilteredRelevance},
+		{Label: "non-technical", Class: "seg--non-technical", Count: n.NonTechnical},
+		{Label: "pending", Class: "seg--pending", Count: n.Pending},
+		{Label: "dead", Class: "seg--dead", Count: n.Dead},
+	}
+	if n.Total > 0 {
+		for i := range segs {
+			segs[i].Pct = float64(segs[i].Count) / float64(n.Total) * 100
+		}
+	}
+	return segs
 }
 
 type FilterState struct {

@@ -1,0 +1,70 @@
+package templates
+
+import "fmt"
+
+templ MetricsPage(total CompanyJobCounts, companies []MetricsCompany) {
+	@Layout("Metrics") {
+		<div class="metrics">
+			<h1>Metrics</h1>
+			@metricsLegend()
+			<div class="metric-row metric-row--summary">
+				<div class="metric-row__head">
+					<span class="metric-row__name">All companies</span>
+					@metricTotals(total)
+				</div>
+				@metricBar(total)
+			</div>
+			<div class="metric-list">
+				for _, c := range companies {
+					<div class="metric-row">
+						<div class="metric-row__head">
+							<span class="metric-row__name">
+								if c.Favicon != "" {
+									<img class="favicon" src={ c.Favicon } alt="" width="14" height="14"/>
+								}
+								{ c.Name }
+							</span>
+							@metricTotals(c.Counts)
+						</div>
+						@metricBar(c.Counts)
+					</div>
+				}
+			</div>
+		</div>
+	}
+}
+
+templ metricTotals(n CompanyJobCounts) {
+	<span class="metric-row__totals">
+		<span class="metric-row__total">{ fmt.Sprintf("%d", n.Total) }</span>
+		<span class="metric-row__tech">{ fmt.Sprintf("%d tech", n.Technical) }</span>
+	</span>
+}
+
+templ metricBar(n CompanyJobCounts) {
+	if n.Total == 0 {
+		<div class="metric-bar metric-bar--empty" title="no jobs"></div>
+	} else {
+		<div class="metric-bar">
+			for _, s := range n.Segments() {
+				if s.Count > 0 {
+					<div
+						class={ "seg", s.Class }
+						style={ fmt.Sprintf("width:%.4f%%", s.Pct) }
+						title={ fmt.Sprintf("%s: %d", s.Label, s.Count) }
+					></div>
+				}
+			}
+		</div>
+	}
+}
+
+templ metricsLegend() {
+	<div class="metric-legend">
+		<span class="metric-legend__item"><span class="swatch seg--accepted"></span>accepted</span>
+		<span class="metric-legend__item"><span class="swatch seg--filtered"></span>filtered</span>
+		<span class="metric-legend__item"><span class="swatch seg--non-technical"></span>non-technical</span>
+		<span class="metric-legend__item"><span class="swatch seg--pending"></span>pending</span>
+		<span class="metric-legend__item"><span class="swatch seg--dead"></span>dead</span>
+	</div>
+}

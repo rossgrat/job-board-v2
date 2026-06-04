@@ -33,5 +33,6 @@ func (s *Server) routes() {
 		r.Post("/jobs/{id}/eval", s.handleSetEval)
 		r.Get("/companies", s.handleCompanies)
 		r.Post("/companies/{id}/toggle", s.handleCompanyToggle)
+		r.Get("/metrics", s.handleMetrics)
 	})
 }

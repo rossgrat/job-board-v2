@@ -26,26 +26,6 @@ LEFT JOIN classified_job cj ON cj.raw_job_id = rj.id AND cj.is_current = true
 GROUP BY c.id
 ORDER BY c.name;
 
--- name: GetCompanyWithJobCounts :one
-SELECT
-    c.id,
-    c.name,
-    c.fetch_type,
-    c.favicon_url,
-    c.is_active,
-    COUNT(cj.id) AS total,
-    COUNT(cj.id) FILTER (WHERE cj.status != 'non_technical') AS technical,
-    COUNT(cj.id) FILTER (WHERE cj.status = 'accepted') AS accepted,
-    COUNT(cj.id) FILTER (WHERE cj.status = 'filtered_relevance') AS filtered_relevance,
-    COUNT(cj.id) FILTER (WHERE cj.status = 'non_technical') AS non_technical,
-    COUNT(cj.id) FILTER (WHERE cj.status = 'pending') AS pending,
-    COUNT(cj.id) FILTER (WHERE cj.status = 'dead') AS dead
-FROM company c
-LEFT JOIN raw_job rj ON rj.company_id = c.id AND rj.deleted_at IS NULL
-LEFT JOIN classified_job cj ON cj.raw_job_id = rj.id AND cj.is_current = true
-WHERE c.id = $1
-GROUP BY c.id;
-
 -- name: GetActiveCompanies :many
 SELECT * FROM company WHERE is_active = true;
 
