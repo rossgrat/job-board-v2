@@ -161,6 +161,15 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .company-item__info { display: flex; align-items: center; gap: 0.5rem; }
 .company-item__name { font-weight: 600; }
 .company-item__type { color: var(--text-muted); font-size: 11px; }
+.company-item__counts { display: flex; flex-wrap: wrap; gap: 0.5rem; font-size: 11px; }
+.count { color: var(--text-muted); }
+.count--total { color: var(--text); }
+.count--technical { color: var(--new); }
+.count--accepted { color: var(--success); }
+.count--filtered { color: var(--danger); }
+.count--non-technical { color: var(--text-muted); }
+.count--pending { color: var(--tabled); }
+.count--dead { color: var(--text-muted); }
 
 /* Detail page */
 .detail__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }

@@ -116,6 +116,62 @@ func (q *Queries) GetCompanyByName(ctx context.Context, name string) (Company, e
 	return i, err
 }
 
+const getCompanyWithJobCounts = `-- name: GetCompanyWithJobCounts :one
+SELECT
+    c.id,
+    c.name,
+    c.fetch_type,
+    c.favicon_url,
+    c.is_active,
+    COUNT(cj.id) AS total,
+    COUNT(cj.id) FILTER (WHERE cj.status != 'non_technical') AS technical,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'accepted') AS accepted,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'filtered_relevance') AS filtered_relevance,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'non_technical') AS non_technical,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'pending') AS pending,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'dead') AS dead
+FROM company c
+LEFT JOIN raw_job rj ON rj.company_id = c.id AND rj.deleted_at IS NULL
+LEFT JOIN classified_job cj ON cj.raw_job_id = rj.id AND cj.is_current = true
+WHERE c.id = $1
+GROUP BY c.id
+`
+
+type GetCompanyWithJobCountsRow struct {
+	ID                pgtype.UUID
+	Name              string
+	FetchType         string
+	FaviconUrl        string
+	IsActive          bool
+	Total             int64
+	Technical         int64
+	Accepted          int64
+	FilteredRelevance int64
+	NonTechnical      int64
+	Pending           int64
+	Dead              int64
+}
+
+func (q *Queries) GetCompanyWithJobCounts(ctx context.Context, id pgtype.UUID) (GetCompanyWithJobCountsRow, error) {
+	row := q.db.QueryRow(ctx, getCompanyWithJobCounts, id)
+	var i GetCompanyWithJobCountsRow
+	err := row.Scan(
+		&i.ID,
+		&i.Name,
+		&i.FetchType,
+		&i.FaviconUrl,
+		&i.IsActive,
+		&i.Total,
+		&i.Technical,
+		&i.Accepted,
+		&i.FilteredRelevance,
+		&i.NonTechnical,
+		&i.Pending,
+		&i.Dead,
+	)
+	return i, err
+}
+
 const listCompanies = `-- name: ListCompanies :many
 SELECT id, name, fetch_type, fetch_config, favicon_url, is_active, created_at FROM company ORDER BY name
 `
@@ -137,6 +193,75 @@ func (q *Queries) ListCompanies(ctx context.Context) ([]Company, error) {
 			&i.FaviconUrl,
 			&i.IsActive,
 			&i.CreatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listCompaniesWithJobCounts = `-- name: ListCompaniesWithJobCounts :many
+SELECT
+    c.id,
+    c.name,
+    c.fetch_type,
+    c.favicon_url,
+    c.is_active,
+    COUNT(cj.id) AS total,
+    COUNT(cj.id) FILTER (WHERE cj.status != 'non_technical') AS technical,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'accepted') AS accepted,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'filtered_relevance') AS filtered_relevance,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'non_technical') AS non_technical,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'pending') AS pending,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'dead') AS dead
+FROM company c
+LEFT JOIN raw_job rj ON rj.company_id = c.id AND rj.deleted_at IS NULL
+LEFT JOIN classified_job cj ON cj.raw_job_id = rj.id AND cj.is_current = true
+GROUP BY c.id
+ORDER BY c.name
+`
+
+type ListCompaniesWithJobCountsRow struct {
+	ID                pgtype.UUID
+	Name              string
+	FetchType         string
+	FaviconUrl        string
+	IsActive          bool
+	Total             int64
+	Technical         int64
+	Accepted          int64
+	FilteredRelevance int64
+	NonTechnical      int64
+	Pending           int64
+	Dead              int64
+}
+
+func (q *Queries) ListCompaniesWithJobCounts(ctx context.Context) ([]ListCompaniesWithJobCountsRow, error) {
+	rows, err := q.db.Query(ctx, listCompaniesWithJobCounts)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListCompaniesWithJobCountsRow
+	for rows.Next() {
+		var i ListCompaniesWithJobCountsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.FetchType,
+			&i.FaviconUrl,
+			&i.IsActive,
+			&i.Total,
+			&i.Technical,
+			&i.Accepted,
+			&i.FilteredRelevance,
+			&i.NonTechnical,
+			&i.Pending,
+			&i.Dead,
 		); err != nil {
 			return nil, err
 		}

@@ -32,6 +32,17 @@ type CompanyItem struct {
 	Favicon   string
 	FetchType string
 	IsActive  bool
+	Counts    CompanyJobCounts
+}
+
+type CompanyJobCounts struct {
+	Total             int64
+	Technical         int64
+	Accepted          int64
+	FilteredRelevance int64
+	NonTechnical      int64
+	Pending           int64
+	Dead              int64
 }
 
 type FilterState struct {

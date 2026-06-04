@@ -12,7 +12,7 @@ import (
 func (s *Server) handleCompanies(w http.ResponseWriter, r *http.Request) {
 	queries := db.New(s.pool)
 
-	rows, err := queries.ListCompanies(r.Context())
+	rows, err := queries.ListCompaniesWithJobCounts(r.Context())
 	if err != nil {
 		slog.Error("failed to list companies", slog.String("err", err.Error()))
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
@@ -27,6 +27,15 @@ func (s *Server) handleCompanies(w http.ResponseWriter, r *http.Request) {
 			Favicon:   row.FaviconUrl,
 			FetchType: row.FetchType,
 			IsActive:  row.IsActive,
+			Counts: templates.CompanyJobCounts{
+				Total:             row.Total,
+				Technical:         row.Technical,
+				Accepted:          row.Accepted,
+				FilteredRelevance: row.FilteredRelevance,
+				NonTechnical:      row.NonTechnical,
+				Pending:           row.Pending,
+				Dead:              row.Dead,
+			},
 		})
 	}
 
@@ -43,7 +52,7 @@ func (s *Server) handleCompanyToggle(w http.ResponseWriter, r *http.Request) {
 	queries := db.New(s.pool)
 	ctx := r.Context()
 
-	company, err := queries.GetCompanyByID(ctx, id)
+	company, err := queries.GetCompanyWithJobCounts(ctx, id)
 	if err != nil {
 		slog.Error("failed to get company", slog.String("err", err.Error()))
 		http.Error(w, "Not Found", http.StatusNotFound)
@@ -67,6 +76,15 @@ func (s *Server) handleCompanyToggle(w http.ResponseWriter, r *http.Request) {
 		Favicon:   company.FaviconUrl,
 		FetchType: company.FetchType,
 		IsActive:  newActive,
+		Counts: templates.CompanyJobCounts{
+			Total:             company.Total,
+			Technical:         company.Technical,
+			Accepted:          company.Accepted,
+			FilteredRelevance: company.FilteredRelevance,
+			NonTechnical:      company.NonTechnical,
+			Pending:           company.Pending,
+			Dead:              company.Dead,
+		},
 	}
 
 	templates.CompanyItemFragment(item).Render(ctx, w)
