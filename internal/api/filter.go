@@ -14,15 +14,17 @@ func (s *Server) handleFilter(w http.ResponseWriter, r *http.Request) {
 	relevance := r.URL.Query().Get("relevance")
 	userStatus := r.URL.Query().Get("user_status")
 	companyName := r.URL.Query().Get("company")
+	includeNonTechnical := r.URL.Query().Get("include_non_technical") == "on"
 
 	queries := db.New(s.pool)
 	ctx := r.Context()
 
 	rows, err := queries.ListFilteredJobs(ctx, db.ListFilteredJobsParams{
-		Status:      status,
-		Relevance:   relevance,
-		UserStatus:  userStatus,
-		CompanyName: companyName,
+		Status:              status,
+		Relevance:           relevance,
+		UserStatus:          userStatus,
+		CompanyName:         companyName,
+		IncludeNonTechnical: includeNonTechnical,
 	})
 	if err != nil {
 		slog.Error("failed to list filtered jobs", slog.String("err", err.Error()))
@@ -57,11 +59,12 @@ func (s *Server) handleFilter(w http.ResponseWriter, r *http.Request) {
 	}
 
 	filters := templates.FilterState{
-		Status:       status,
-		Relevance:    relevance,
-		UserStatus:   userStatus,
-		CompanyName:  companyName,
-		CompanyNames: companyNames,
+		Status:              status,
+		Relevance:           relevance,
+		UserStatus:          userStatus,
+		CompanyName:         companyName,
+		CompanyNames:        companyNames,
+		IncludeNonTechnical: includeNonTechnical,
 	}
 
 	templates.FilterPage(jobs, filters).Render(ctx, w)

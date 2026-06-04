@@ -146,17 +146,17 @@ LEFT JOIN classified_job_location cjl ON cjl.classified_job_id = cj.id
 LEFT JOIN classified_job_technology cjt ON cjt.classified_job_id = cj.id
 WHERE cj.is_current = true
   AND rj.deleted_at IS NULL
-  AND cj.status != 'non_technical'
+  AND ($1::bool OR cj.status != 'non_technical')
   AND (
-    ($1::text = '' AND cj.status IN ('accepted', 'filtered_relevance'))
-    OR ($1::text = 'all' AND cj.status NOT IN ('pending', 'dead'))
-    OR cj.status = $1::text
+    ($2::text = '' AND cj.status IN ('accepted', 'filtered_relevance', 'non_technical'))
+    OR ($2::text = 'all' AND cj.status NOT IN ('pending', 'dead'))
+    OR cj.status = $2::text
   )
-  AND ($2::text = '' OR cj.relevance = $2)
-  AND ($3::text = '' OR
-       ($3 = 'new' AND rj.user_status IS NULL) OR
-       ($3 != 'new' AND rj.user_status = $3))
-  AND ($4::text = '' OR c.name = $4)
+  AND ($3::text = '' OR cj.relevance = $3)
+  AND ($4::text = '' OR
+       ($4 = 'new' AND rj.user_status IS NULL) OR
+       ($4 != 'new' AND rj.user_status = $4))
+  AND ($5::text = '' OR c.name = $5)
 GROUP BY cj.id, rj.id, c.id
 ORDER BY
     CASE WHEN rj.user_status IS NULL THEN 0
@@ -168,10 +168,11 @@ ORDER BY
 `
 
 type ListFilteredJobsParams struct {
-	Status      string
-	Relevance   string
-	UserStatus  string
-	CompanyName string
+	IncludeNonTechnical bool
+	Status              string
+	Relevance           string
+	UserStatus          string
+	CompanyName         string
 }
 
 type ListFilteredJobsRow struct {
@@ -196,6 +197,7 @@ type ListFilteredJobsRow struct {
 
 func (q *Queries) ListFilteredJobs(ctx context.Context, arg ListFilteredJobsParams) ([]ListFilteredJobsRow, error) {
 	rows, err := q.db.Query(ctx, listFilteredJobs,
+		arg.IncludeNonTechnical,
 		arg.Status,
 		arg.Relevance,
 		arg.UserStatus,

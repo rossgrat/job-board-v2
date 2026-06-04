@@ -37,6 +37,14 @@ templ FilterPage(jobs []DashboardJob, filters FilterState) {
 						@filterOption(name, filters.CompanyName)
 					}
 				</select>
+				<label class="toggle">
+					if filters.IncludeNonTechnical {
+						<input type="checkbox" name="include_non_technical" checked/>
+					} else {
+						<input type="checkbox" name="include_non_technical"/>
+					}
+					Include non-technical
+				</label>
 			</form>
 			<p class="job-count">{ fmt.Sprintf("%d", len(jobs)) } jobs</p>
 			<div class="job-list">

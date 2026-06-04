@@ -28,9 +28,13 @@ type JibeJob struct {
 	City             string   `json:"city"`
 	State            string   `json:"state"`
 	Country          string   `json:"country"`
-	EmploymentType   string   `json:"employment_type"`
-	Categories       []string `json:"categories"`
-	ApplyURL         string   `json:"apply_url"`
+	EmploymentType   string         `json:"employment_type"`
+	Categories       []JibeCategory `json:"categories"`
+	ApplyURL         string         `json:"apply_url"`
+}
+
+type JibeCategory struct {
+	Name string `json:"name"`
 }
 
 func (j *JibeJob) ToModel(companyID uuid.UUID, baseURL string) model.RawJob {
@@ -50,8 +54,12 @@ func (j *JibeJob) ToModel(companyID uuid.UUID, baseURL string) model.RawJob {
 		sb.WriteString("\n")
 	}
 	if len(j.Categories) > 0 {
+		names := make([]string, len(j.Categories))
+		for i, c := range j.Categories {
+			names[i] = c.Name
+		}
 		sb.WriteString("Categories: ")
-		sb.WriteString(strings.Join(j.Categories, ", "))
+		sb.WriteString(strings.Join(names, ", "))
 		sb.WriteString("\n")
 	}
 	sb.WriteString("\n")

@@ -35,11 +35,12 @@ type CompanyItem struct {
 }
 
 type FilterState struct {
-	Status       string
-	Relevance    string
-	UserStatus   string
-	CompanyName  string
-	CompanyNames []string
+	Status              string
+	Relevance           string
+	UserStatus          string
+	CompanyName         string
+	CompanyNames        []string
+	IncludeNonTechnical bool
 }
 
 type ReviewModal struct {

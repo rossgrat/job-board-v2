@@ -32,9 +32,9 @@ LEFT JOIN classified_job_location cjl ON cjl.classified_job_id = cj.id
 LEFT JOIN classified_job_technology cjt ON cjt.classified_job_id = cj.id
 WHERE cj.is_current = true
   AND rj.deleted_at IS NULL
-  AND cj.status != 'non_technical'
+  AND (@include_non_technical::bool OR cj.status != 'non_technical')
   AND (
-    (@status::text = '' AND cj.status IN ('accepted', 'filtered_relevance'))
+    (@status::text = '' AND cj.status IN ('accepted', 'filtered_relevance', 'non_technical'))
     OR (@status::text = 'all' AND cj.status NOT IN ('pending', 'dead'))
     OR cj.status = @status::text
   )
