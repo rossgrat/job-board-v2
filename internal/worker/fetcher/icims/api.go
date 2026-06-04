@@ -21,6 +21,14 @@ type JobPosting struct {
 	JobLocation        json.RawMessage `json:"jobLocation,omitempty"`
 }
 
+type place struct {
+	Address struct {
+		Locality string `json:"addressLocality"`
+		Region   string `json:"addressRegion"`
+		Country  string `json:"addressCountry"`
+	} `json:"address"`
+}
+
 // detailJob holds everything we scraped from a single job detail page.
 // The JSON-LD block carries metadata but not the body copy, so we also keep
 // the stitched-together iCIMS_InfoMsg_Job text for the LLM to read.
@@ -49,7 +57,7 @@ func (d *detailJob) ToModel(companyID uuid.UUID) model.RawJob {
 	}
 	if len(d.Posting.JobLocation) > 0 {
 		sb.WriteString("Location: ")
-		sb.Write(d.Posting.JobLocation)
+		sb.WriteString(formatLocations(d.Posting.JobLocation))
 		sb.WriteString("\n")
 	}
 	sb.WriteString("\n")
@@ -62,4 +70,36 @@ func (d *detailJob) ToModel(companyID uuid.UUID) model.RawJob {
 		RawData:     rawData,
 		CleanData:   model.CleanContent([]byte(sb.String())),
 	}
+}
+
+// formatLocations turns the jobLocation JSON-LD into "City, ST, Country" prose.
+// The LLM normalizer reliably drops the city when handed the raw PostalAddress
+// blob, so we hand it the shape the prompt expects. Falls back to the raw bytes
+// if the structure is anything other than the Place(s) we know how to read.
+func formatLocations(raw json.RawMessage) string {
+	var places []place
+	if err := json.Unmarshal(raw, &places); err != nil {
+		var single place
+		if err := json.Unmarshal(raw, &single); err != nil {
+			return string(raw)
+		}
+		places = []place{single}
+	}
+
+	var lines []string
+	for _, p := range places {
+		var parts []string
+		for _, f := range []string{p.Address.Locality, p.Address.Region, p.Address.Country} {
+			if f != "" {
+				parts = append(parts, f)
+			}
+		}
+		if len(parts) > 0 {
+			lines = append(lines, strings.Join(parts, ", "))
+		}
+	}
+	if len(lines) == 0 {
+		return string(raw)
+	}
+	return strings.Join(lines, "; ")
 }
