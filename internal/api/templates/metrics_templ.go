@@ -307,7 +307,7 @@ func metricsLegend() templ.Component {
 			templ_7745c5c3_Var13 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"metric-legend\"><span class=\"metric-legend__item\"><span class=\"swatch seg--accepted\"></span>accepted</span> <span class=\"metric-legend__item\"><span class=\"swatch seg--filtered\"></span>filtered</span> <span class=\"metric-legend__item\"><span class=\"swatch seg--non-technical\"></span>non-technical</span> <span class=\"metric-legend__item\"><span class=\"swatch seg--pending\"></span>pending</span> <span class=\"metric-legend__item\"><span class=\"swatch seg--dead\"></span>dead</span></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"metric-legend\"><span class=\"metric-legend__item\"><span class=\"swatch seg--accepted\"></span>accepted</span> <span class=\"metric-legend__item\"><span class=\"swatch seg--filtered-relevance\"></span>filtered: relevance</span> <span class=\"metric-legend__item\"><span class=\"swatch seg--filtered-level\"></span>filtered: level</span> <span class=\"metric-legend__item\"><span class=\"swatch seg--filtered-location\"></span>filtered: location</span> <span class=\"metric-legend__item\"><span class=\"swatch seg--non-technical\"></span>non-technical</span> <span class=\"metric-legend__item\"><span class=\"swatch seg--pending\"></span>pending</span> <span class=\"metric-legend__item\"><span class=\"swatch seg--dead\"></span>dead</span></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

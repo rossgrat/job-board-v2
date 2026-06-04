@@ -39,6 +39,8 @@ type CompanyJobCounts struct {
 	Technical         int64
 	Accepted          int64
 	FilteredRelevance int64
+	FilteredLevel     int64
+	FilteredLocation  int64
 	NonTechnical      int64
 	Pending           int64
 	Dead              int64
@@ -62,7 +64,9 @@ type CountSegment struct {
 func (n CompanyJobCounts) Segments() []CountSegment {
 	segs := []CountSegment{
 		{Label: "accepted", Class: "seg--accepted", Count: n.Accepted},
-		{Label: "filtered", Class: "seg--filtered", Count: n.FilteredRelevance},
+		{Label: "filtered: relevance", Class: "seg--filtered-relevance", Count: n.FilteredRelevance},
+		{Label: "filtered: level", Class: "seg--filtered-level", Count: n.FilteredLevel},
+		{Label: "filtered: location", Class: "seg--filtered-location", Count: n.FilteredLocation},
 		{Label: "non-technical", Class: "seg--non-technical", Count: n.NonTechnical},
 		{Label: "pending", Class: "seg--pending", Count: n.Pending},
 		{Label: "dead", Class: "seg--dead", Count: n.Dead},

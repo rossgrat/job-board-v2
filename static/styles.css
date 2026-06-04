@@ -201,11 +201,12 @@ h1 { font-size: 14px; font-weight: 700; margin-bottom: 0.75rem; text-transform: 
 .metric-bar--empty { background: var(--surface); }
 .seg { height: 100%; }
 .seg--accepted { background: var(--success); }
-.seg--filtered { background: var(--accent); }
+.seg--filtered-relevance { background: #fabd2f; }
+.seg--filtered-level { background: #fe8019; }
+.seg--filtered-location { background: #d65d0e; }
 .seg--non-technical { background: var(--text-muted); }
 .seg--pending { background: var(--new); }
 .seg--dead { background: var(--danger); }
-.swatch.seg--non-technical { background: var(--text-muted); }
 
 /* Company list */
 .company-list { display: flex; flex-direction: column; }

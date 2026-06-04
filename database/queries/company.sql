@@ -17,6 +17,8 @@ SELECT
     COUNT(cj.id) FILTER (WHERE cj.status != 'non_technical') AS technical,
     COUNT(cj.id) FILTER (WHERE cj.status = 'accepted') AS accepted,
     COUNT(cj.id) FILTER (WHERE cj.status = 'filtered_relevance') AS filtered_relevance,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'filtered_level') AS filtered_level,
+    COUNT(cj.id) FILTER (WHERE cj.status = 'filtered_location') AS filtered_location,
     COUNT(cj.id) FILTER (WHERE cj.status = 'non_technical') AS non_technical,
     COUNT(cj.id) FILTER (WHERE cj.status = 'pending') AS pending,
     COUNT(cj.id) FILTER (WHERE cj.status = 'dead') AS dead

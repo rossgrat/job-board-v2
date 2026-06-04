@@ -27,6 +27,8 @@ func (s *Server) handleMetrics(w http.ResponseWriter, r *http.Request) {
 			Technical:         row.Technical,
 			Accepted:          row.Accepted,
 			FilteredRelevance: row.FilteredRelevance,
+			FilteredLevel:     row.FilteredLevel,
+			FilteredLocation:  row.FilteredLocation,
 			NonTechnical:      row.NonTechnical,
 			Pending:           row.Pending,
 			Dead:              row.Dead,
@@ -35,6 +37,8 @@ func (s *Server) handleMetrics(w http.ResponseWriter, r *http.Request) {
 		total.Technical += counts.Technical
 		total.Accepted += counts.Accepted
 		total.FilteredRelevance += counts.FilteredRelevance
+		total.FilteredLevel += counts.FilteredLevel
+		total.FilteredLocation += counts.FilteredLocation
 		total.NonTechnical += counts.NonTechnical
 		total.Pending += counts.Pending
 		total.Dead += counts.Dead
